@@ -1,0 +1,16 @@
+# Ignore large dataset archive and extracted files
+dataset.zip
+*.zip
+
+# Python environments and cache
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Run outputs
+output/
+*.log
+
+# OS files
+.DS_Store
