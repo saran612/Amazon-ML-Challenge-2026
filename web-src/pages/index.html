@@ -1,0 +1,68 @@
+<section id="introduction">
+  <p class="eyebrow">Getting started</p>
+  <h1>Entity Resolver documentation</h1>
+  <p class="lede">Entity Resolver links business records across three data sources. It takes a clean reference
+    list (Source 1) and two noisy sources (Source 2 and Source 3), and for every reference business it returns
+    all the Source 2 and Source 3 records that describe the same business.</p>
+  <p>The records are messy in ways that break simple matching. Names have typos, abbreviations and changed legal
+    suffixes. Some are written in another script, such as Devanagari, and some are just a web domain. Addresses
+    are reordered, abbreviated, missing parts or missing entirely, and house numbers are off by one. Many
+    records belong to no reference business at all, and some of those look almost identical to a real one.
+    Entity Resolver is built to separate the two cases: noise on a true match, and a different business that
+    happens to look similar.</p>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="num">0.986</div>
+      <div class="lbl">macro F0.5 on held-out data</div>
+    </div>
+    <div class="stat">
+      <div class="num">98.5%</div>
+      <div class="lbl">true pairs kept by blocking</div>
+    </div>
+    <div class="stat">
+      <div class="num">77</div>
+      <div class="lbl">pair features</div>
+    </div>
+    <div class="stat">
+      <div class="num">0.998</div>
+      <div class="lbl">pair precision</div>
+    </div>
+  </div>
+
+  <h3>Design principles</h3>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="dot"></span>Learned, not hand-written</h3>
+      <p>There are no word lists for any language. Abbreviations and spelling variants are mined from training
+        matches. Filler words, places and place links come from the statistics of whatever files are being
+        processed.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Ready for new countries</h3>
+      <p>The model has no country feature, and each country's statistics are learned from its own records. A
+        country that never appeared in training is handled the same way as the ones that did.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Precision first</h3>
+      <p>The metric counts a wrong merge more heavily than a missed match. For each business, the decision layer
+        picks the set of matches with the highest expected score, not one fixed cut-off for all businesses.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Every switch must earn its place</h3>
+      <p>Each optional step (cross-encoder, consistency, unseen-country rule) is tuned together with "off" on a
+        validation half, and is kept only when it measurably helps.</p>
+    </div>
+  </div>
+
+  <h3>How these docs are organised</h3>
+  <ul>
+    <li><strong>Getting started</strong>: install the package, run it on synthetic data, and prepare your own
+      data.</li>
+    <li><strong>Core concepts</strong>: the matching problem, the metric, and how the pipeline is laid out.</li>
+    <li><strong>Pipeline</strong>: how each stage works and why it was designed that way.</li>
+    <li><strong>Guides</strong>: step-by-step instructions for common tasks.</li>
+    <li><strong>Reference</strong>: every command-line option, setting and output file.</li>
+    <li><strong>Evaluation</strong>: how the scores are measured, and what the remaining errors are.</li>
+  </ul>
+</section>

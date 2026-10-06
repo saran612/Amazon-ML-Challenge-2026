@@ -1,0 +1,81 @@
+<section id="modules">
+  <p class="eyebrow">Reference</p>
+  <h2>Module map</h2>
+  <p class="lede">The package lives in <code>src/er/</code>. Each module covers one stage or concern.</p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Module</th>
+        <th>Responsibility</th>
+      </tr>
+      <tr>
+        <td><code>pipeline.py</code></td>
+        <td>The training and test runs end to end, the stage cache, tuning, and reports.</td>
+      </tr>
+      <tr>
+        <td><code>config.py</code></td>
+        <td>The <code>Config</code> dataclass and default paths.</td>
+      </tr>
+      <tr>
+        <td><code>io.py</code></td>
+        <td>Reading source and ground-truth TSVs; writing the id-list outputs.</td>
+      </tr>
+      <tr>
+        <td><code>normalize.py</code></td>
+        <td>Transliteration, cleaning, domain detection, address segments.</td>
+      </tr>
+      <tr>
+        <td><code>vocab.py</code></td>
+        <td>Token-variant mining, filler words, places, place links, name rarity, house numbers.</td>
+      </tr>
+      <tr>
+        <td><code>embed.py</code></td>
+        <td>Encoder fine-tuning, name embedding, FAISS search (in isolated processes).</td>
+      </tr>
+      <tr>
+        <td><code>blocking.py</code></td>
+        <td>The four retrieval passes, combined score and cap, blocking recall report.</td>
+      </tr>
+      <tr>
+        <td><code>features.py</code></td>
+        <td>The 77 pair features, including siblings and competitors.</td>
+      </tr>
+      <tr>
+        <td><code>model.py</code></td>
+        <td>Two-stage LightGBM, query context, calibration, model save and load.</td>
+      </tr>
+      <tr>
+        <td><code>crossenc.py</code></td>
+        <td>Cross-encoder training, scoring and logit blending.</td>
+      </tr>
+      <tr>
+        <td><code>decide.py</code></td>
+        <td>Owner assignment, expected-F0.5 set selection, global threshold.</td>
+      </tr>
+      <tr>
+        <td><code>consistency.py</code></td>
+        <td>The optional anchor-based consistency step.</td>
+      </tr>
+      <tr>
+        <td><code>split.py</code></td>
+        <td>Validation halves and consistent sampling.</td>
+      </tr>
+      <tr>
+        <td><code>metrics.py</code></td>
+        <td>Macro F0.5 and its breakdowns.</td>
+      </tr>
+      <tr>
+        <td><code>analysis.py</code></td>
+        <td>Error analysis by slice and error examples.</td>
+      </tr>
+      <tr>
+        <td><code>synthetic.py</code></td>
+        <td>The synthetic dataset generator.</td>
+      </tr>
+      <tr>
+        <td><code>log.py</code></td>
+        <td>Timestamped logging with stage timing and peak memory.</td>
+      </tr>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,22 @@
+<section id="predicting">
+  <p class="eyebrow">Guides</p>
+  <h2>Running predictions</h2>
+  <p class="lede">Apply a trained model to the test files.</p>
+  <pre><code>python scripts/test.py</code></pre>
+  <p><code>test.py</code> looks for a finished model in <code>work/model/</code>, marked by
+    <code>model_id.txt</code>. It reloads the configuration saved with the model, so the settings used in
+    training also apply at prediction. You don't need to repeat training flags. It then:
+  </p>
+  <ol>
+    <li>Normalizes the test files and applies the saved token maps.</li>
+    <li>Recomputes filler words, places, place links and name rarity on the <em>test</em> files.</li>
+    <li>Embeds the test names with the fine-tuned encoder saved in the model folder.</li>
+    <li>Runs blocking and writes <code>output/candidate_pairs.tsv</code>.</li>
+    <li>Scores every candidate, calibrates, and blends in the cross-encoder on the uncertain band.</li>
+    <li>Applies the tuned decision and writes <code>output/matching_results.tsv</code>.</li>
+  </ol>
+  <p>Before writing, it checks that every predicted match is also in the candidate set, and stops if one is
+    not. It then logs a per-country summary: the number of S1 records, the share left empty, and the mean
+    number of matches. This summary is a quick way to spot an unusual country. Prediction on the full test set
+    takes about 2.8 hours.</p>
+</section>

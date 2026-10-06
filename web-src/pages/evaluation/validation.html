@@ -1,0 +1,33 @@
+<section id="validation">
+  <p class="eyebrow">Evaluation</p>
+  <h2>Validation protocol</h2>
+  <p class="lede">All reported scores come from training data held out so that nothing was tuned on it. The
+    protocol is also built so that the held-out businesses are no easier to match than real test data.</p>
+
+  <h3 id="validation-halves">Half A and half B</h3>
+  <p>5% of the training S1 records are held out at random, in two equal halves:</p>
+  <figure class="fig">
+    <p class="fig-title">How the training S1 records are split</p>
+    <p class="fig-sub">Not to scale</p>
+    <div class="split">
+      <div><b>95%</b><strong>Training</strong>Fits the matcher, the token variants and the encoder.</div>
+      <div class="a"><b>2.5%</b><strong>Half A: tunes</strong>Calibration, decision parameters and every
+        optional step.</div>
+      <div class="b"><b>2.5%</b><strong>Half B: reports</strong>55,357 S1 records. Never used to choose
+        anything.</div>
+    </div>
+  </figure>
+
+  <h3 id="leakage">Avoiding leakage</h3>
+  <ul>
+    <li><strong>Blocking runs over the full training data</strong>, so the held-out businesses face the same
+      crowd of distractors and look-alikes as every other business.</li>
+    <li><strong>A query counts as a validation query</strong> if its true owner <em>or any of its
+        candidates</em> is a held-out S1 record. The matcher never trains on such a query, so it cannot learn
+      anything about held-out businesses through their competitors.</li>
+    <li><strong>Supervised vocabulary and fine-tuning</strong> use only pairs whose S1 record is outside the
+      validation set. This applies to the token variants and to the encoder.</li>
+    <li><strong>Out-of-fold scores</strong>: stage 2 trains on out-of-fold stage-1 scores, and the
+      cross-encoder's training pairs are selected with them, never with in-sample scores.</li>
+  </ul>
+</section>

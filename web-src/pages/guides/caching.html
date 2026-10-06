@@ -1,0 +1,108 @@
+<section id="caching">
+  <p class="eyebrow">Guides</p>
+  <h2>Caching and resuming</h2>
+  <p class="lede">Every expensive stage stores its output with a key that covers the settings it depends on and
+    the keys of the stages before it. A stage is recomputed only when its key changes.</p>
+  <figure class="fig">
+    <p class="fig-title">How the cached stages depend on each other</p>
+    <p class="fig-sub">Changing a stage's settings re-runs that stage and every stage an arrow leads to.</p>
+    <div class="fig-scroll">
+      <svg viewBox="0 0 691 190" role="img"
+        aria-label="Stage dependencies: norm feeds maps and finetune; maps feeds derive; finetune feeds emb; derive and emb feed pairs; pairs feeds xtrain and scores; xtrain feeds ce.">
+        <path class="d-line" d="M 93,89 H 100 Q 106,89 106,83 V 33 Q 106,27 112,27 H 119" marker-end="url(#arr)"></path>
+        <path class="d-line" d="M 213,27 L 239,27" marker-end="url(#arr)"></path>
+        <path class="d-line" d="M 93,89 H 100 Q 106,89 106,95 V 145 Q 106,151 112,151 H 119" marker-end="url(#arr)"></path>
+        <path class="d-line" d="M 213,151 L 239,151" marker-end="url(#arr)"></path>
+        <path class="d-line" d="M 333,27 H 340 Q 346,27 346,33 V 83 Q 346,89 352,89 H 359" marker-end="url(#arr)"></path>
+        <path class="d-line" d="M 333,151 H 340 Q 346,151 346,145 V 95 Q 346,89 352,89 H 359" marker-end="url(#arr)"></path>
+        <path class="d-line" d="M 453,89 H 460 Q 466,89 466,83 V 33 Q 466,27 472,27 H 479" marker-end="url(#arr)"></path>
+        <path class="d-line" d="M 573,27 L 597,27" marker-end="url(#arr)"></path>
+        <path class="d-line" d="M 453,89 H 460 Q 466,89 466,95 V 145 Q 466,151 472,151 H 479" marker-end="url(#arr)"></path>
+        <rect class="d-box" x="0.5" y="72.5" width="92" height="34" rx="8"></rect>
+        <text class="d-t" x="46" y="94" text-anchor="middle">norm</text>
+        <rect class="d-box" x="120.5" y="10.5" width="92" height="34" rx="8"></rect>
+        <text class="d-t" x="166" y="32" text-anchor="middle">maps</text>
+        <rect class="d-box" x="240.5" y="10.5" width="92" height="34" rx="8"></rect>
+        <text class="d-t" x="286" y="32" text-anchor="middle">derive</text>
+        <rect class="d-box" x="120.5" y="134.5" width="92" height="34" rx="8"></rect>
+        <text class="d-t" x="166" y="156" text-anchor="middle">finetune</text>
+        <rect class="d-box" x="240.5" y="134.5" width="92" height="34" rx="8"></rect>
+        <text class="d-t" x="286" y="156" text-anchor="middle">emb</text>
+        <rect class="d-box" x="360.5" y="72.5" width="92" height="34" rx="8"></rect>
+        <text class="d-t" x="406" y="94" text-anchor="middle">pairs</text>
+        <rect class="d-box" x="480.5" y="10.5" width="92" height="34" rx="8"></rect>
+        <text class="d-t" x="526" y="32" text-anchor="middle">xtrain</text>
+        <rect class="d-box" x="598.5" y="10.5" width="92" height="34" rx="8"></rect>
+        <text class="d-t" x="644" y="32" text-anchor="middle">ce</text>
+        <rect class="d-box" x="480.5" y="134.5" width="92" height="34" rx="8"></rect>
+        <text class="d-t" x="526" y="156" text-anchor="middle">scores</text>
+        <text class="d-s" x="526" y="184" text-anchor="middle">test.py only</text>
+      </svg>
+    </div>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Stage</th>
+        <th>Main outputs</th>
+        <th>Recomputed when you change</th>
+      </tr>
+      <tr>
+        <td>norm</td>
+        <td><code>norm_s1.parquet</code>, <code>norm_q.parquet</code></td>
+        <td><code>--sample</code>, seed</td>
+      </tr>
+      <tr>
+        <td>maps</td>
+        <td><code>token_maps.json</code></td>
+        <td>Validation share, <code>abbrev_*</code> settings</td>
+      </tr>
+      <tr>
+        <td>derive</td>
+        <td><code>s1.parquet</code>, <code>q.parquet</code>, <code>place_links.json</code></td>
+        <td>Token maps, filler-word and place settings</td>
+      </tr>
+      <tr>
+        <td>finetune</td>
+        <td><code>embed_model/</code></td>
+        <td>Encoder and fine-tuning settings</td>
+      </tr>
+      <tr>
+        <td>emb</td>
+        <td><code>emb.npy</code></td>
+        <td>Encoder identity, length, dimension</td>
+      </tr>
+      <tr>
+        <td>pairs</td>
+        <td><code>pairs.parquet</code></td>
+        <td>Any blocking setting, the embeddings, <code>--sim-drop</code></td>
+      </tr>
+      <tr>
+        <td>xtrain</td>
+        <td><code>X_train.npy</code></td>
+        <td>Candidates, feature list, sibling settings, training-pair budget</td>
+      </tr>
+      <tr>
+        <td>ce</td>
+        <td><code>ce_model/</code></td>
+        <td>Training features, cross-encoder settings</td>
+      </tr>
+      <tr>
+        <td>scores (test only)</td>
+        <td><code>scores.npy</code></td>
+        <td>Test candidates, or a newly trained model</td>
+      </tr>
+    </table>
+  </div>
+  <p>This has two practical consequences:</p>
+  <ul>
+    <li><strong>Interrupted runs resume.</strong> Run the same command again, and it continues from the first
+      stage without a valid cache.</li>
+    <li><strong>Experiments are cheap.</strong> Changing the number of candidates, for example, re-runs blocking
+      and everything after it, but keeps the normalized records, the fine-tuned encoder and the
+      embeddings.</li>
+  </ul>
+  <p><code>--force</code> deletes the run's cache folder (<code>work/train/</code> or <code>work/test/</code>)
+    and starts from scratch. If you change a stage's <em>code</em> in a way that makes old outputs invalid, bump
+    its number in <code>STAGE_VERSION</code> in <code>er/pipeline.py</code>.</p>
+</section>

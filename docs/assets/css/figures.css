@@ -1,0 +1,594 @@
+/* ---- Figures: diagrams and charts ---- */
+figure {
+  margin: 0;
+}
+
+figcaption {
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+figure.fig {
+  position: relative;
+  margin: 20px 0 26px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.fig .fig-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 2px;
+  max-width: none;
+}
+
+.fig .fig-sub {
+  font-size: 12.5px;
+  color: var(--fg-muted);
+  margin: 0 0 16px;
+  max-width: none;
+}
+
+figure.fig figcaption {
+  text-align: left;
+  margin-top: 14px;
+  font-size: 12.5px;
+}
+
+.fig-scroll {
+  overflow-x: auto;
+}
+
+.fig svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 620px;
+}
+
+.fig svg text {
+  font-family: inherit;
+  font-size: 12.5px;
+  fill: var(--fg);
+}
+
+.fig svg .d-t {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.fig svg .d-t.lg {
+  font-size: 14px;
+}
+
+.fig svg .d-s {
+  font-size: 11.5px;
+  fill: var(--fg-muted);
+}
+
+/* label on a mark filled with --viz-1 */
+.fig svg .d-on {
+  fill: var(--on-viz-1);
+  font-weight: 700;
+}
+
+.fig svg .d-e {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  fill: var(--accent);
+}
+
+.fig svg .d-tick {
+  font-size: 11.5px;
+  fill: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.d-box {
+  fill: var(--card);
+  stroke: var(--border);
+}
+
+.d-box-soft {
+  fill: var(--bg-soft);
+  stroke: var(--border);
+}
+
+.d-box-accent {
+  fill: var(--accent-soft);
+  stroke: var(--viz-3);
+}
+
+.d-line {
+  fill: none;
+  stroke: var(--viz-line);
+  stroke-width: 1.5;
+}
+
+.d-line-accent {
+  fill: none;
+  stroke: var(--viz-1);
+  stroke-width: 2;
+}
+
+.d-arrow {
+  fill: var(--viz-line);
+}
+
+/* zero-size svg in the layout that holds the shared arrow marker */
+.svg-defs {
+  position: absolute;
+}
+
+.d-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.d-axis {
+  stroke: var(--viz-line);
+  stroke-width: 1;
+}
+
+/* line chart marks */
+.c-line {
+  fill: none;
+  stroke: var(--viz-1);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.c-line.alt {
+  stroke: var(--viz-3);
+}
+
+.c-dot {
+  fill: var(--viz-1);
+  stroke: var(--card);
+  stroke-width: 2;
+}
+
+.c-dot.open {
+  fill: var(--card);
+  stroke: var(--viz-1);
+}
+
+.c-hit {
+  fill: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.c-hit:focus-visible {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.tip {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: var(--fg);
+  color: var(--bg);
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 12px;
+  line-height: 1.45;
+  box-shadow: var(--shadow);
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+  display: none;
+}
+
+.tip b {
+  display: block;
+  font-size: 14px;
+}
+
+.tip span {
+  opacity: 0.8;
+}
+
+/* bars inside tables */
+.barrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 150px;
+}
+
+.bar {
+  flex: none;
+  height: 10px;
+  min-width: 2px;
+  border-radius: 0 4px 4px 0;
+  background: var(--viz-1);
+}
+
+.bar.muted {
+  background: var(--viz-3);
+}
+
+.barrow .val {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* stacked part-to-whole bar */
+.stack {
+  display: flex;
+  gap: 2px;
+  height: 24px;
+}
+
+.stack span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.stack span:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.stack span:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.stack .s1 {
+  background: var(--viz-1);
+  color: var(--on-viz-1);
+}
+
+.stack .s2 {
+  background: var(--viz-2);
+  color: var(--on-viz-2);
+}
+
+.stack .s3 {
+  background: var(--viz-3);
+  color: var(--on-viz-3);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--fg-muted);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.legend b {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* legend swatches: series colour, then shape */
+.legend .v1 {
+  background: var(--viz-1);
+}
+
+.legend .v2 {
+  background: var(--viz-2);
+}
+
+.legend .v3 {
+  background: var(--viz-3);
+}
+
+.legend .round {
+  border-radius: 50%;
+}
+
+.legend .ring {
+  border: 2px solid var(--viz-1);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+/* legend that sits directly under a table */
+.legend.after-table {
+  margin: -8px 0 18px;
+}
+
+/* dot pictogram: correct, missed, wrong */
+.pic {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.pic i {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  flex: none;
+}
+
+.pic .hit {
+  background: var(--viz-1);
+}
+
+.pic .miss {
+  border: 2px solid var(--viz-1);
+}
+
+.pic .wrong {
+  border-radius: 3px;
+  background: var(--bad);
+  color: #fff;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 13px;
+  text-align: center;
+}
+
+/* before -> after range track */
+.range {
+  position: relative;
+  height: 18px;
+  min-width: 170px;
+}
+
+.range::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  height: 1px;
+  background: var(--border);
+}
+
+.range .seg {
+  position: absolute;
+  top: 7px;
+  height: 3px;
+  background: var(--viz-3);
+}
+
+.range .pt {
+  position: absolute;
+  top: 3px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 2px solid var(--card);
+  background: var(--viz-3);
+}
+
+.range .pt.to {
+  background: var(--viz-1);
+}
+
+.range-axis {
+  display: flex;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+}
+
+/* token anatomy */
+.anat {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 14px 18px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.anat dt {
+  color: var(--fg-muted);
+  font-size: 12.5px;
+}
+
+.anat dd {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .anat {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .anat dd {
+    margin-bottom: 10px;
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 6px;
+  align-items: center;
+}
+
+.chip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  white-space: nowrap;
+}
+
+.chip.core {
+  background: var(--fg);
+  border-color: var(--fg);
+  color: var(--bg);
+}
+
+.chip.drop {
+  background: var(--bg-soft);
+  color: var(--fg-muted);
+  text-decoration: line-through;
+}
+
+.chip-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 14px;
+  font-size: 11.5px;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+/* side-by-side example cards */
+.pairs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 18px 0 22px;
+}
+
+@media (max-width: 640px) {
+  .pairs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pair {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: var(--card);
+  font-size: 13.5px;
+}
+
+.pair .verdict {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.pair .verdict i {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex: none;
+  color: #fff;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.pair .verdict .yes {
+  background: var(--ok);
+}
+
+.pair .verdict .no {
+  background: var(--bad);
+}
+
+.pair .rec {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--bg-soft);
+  margin-top: 6px;
+}
+
+.pair .rec small {
+  display: block;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.pair p {
+  font-size: 13px;
+  color: var(--fg-muted);
+  margin: 10px 0 0;
+}
+
+/* validation split */
+.split {
+  display: grid;
+  grid-template-columns: 3fr 1.4fr 1.4fr;
+  gap: 2px;
+}
+
+@media (max-width: 640px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.split > div {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--fg-muted);
+  background: var(--bg-soft);
+}
+
+.split > div:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.split > div:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.split .a {
+  background: var(--accent-soft);
+}
+
+.split .b {
+  background: var(--border);
+}
+
+.split b {
+  display: block;
+  color: var(--fg);
+  font-size: 20px;
+}
+
+.split strong {
+  display: block;
+  color: var(--fg);
+  margin-bottom: 2px;
+}
+
+/* ---- Small screens ---- */
+@media (max-width: 760px) {
+  figure.fig {
+    padding: 14px;
+  }
+}

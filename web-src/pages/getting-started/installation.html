@@ -1,0 +1,90 @@
+<section id="installation">
+  <p class="eyebrow">Getting started</p>
+  <h2>Installation</h2>
+  <p class="lede">Install the package from a clone of the repository. You can install only the core pipeline,
+    or add the neural components that the default configuration uses.</p>
+
+  <h3 id="requirements">Requirements</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Requirement</th>
+        <th>Details</th>
+      </tr>
+      <tr>
+        <td>Python</td>
+        <td>3.11 or newer. The reported results were produced with Python 3.11.9 on macOS (Apple Silicon).</td>
+      </tr>
+      <tr>
+        <td>Operating system</td>
+        <td>macOS or Linux. The logger reads peak memory with Python's Unix-only <code>resource</code> module,
+          so on Windows, run the pipeline inside WSL.</td>
+      </tr>
+      <tr>
+        <td>Memory</td>
+        <td>About 20 GB at peak for the full dataset, developed on a 24 GB machine. The synthetic dataset and
+          <code>--sample</code> runs fit on any laptop.
+        </td>
+      </tr>
+      <tr>
+        <td>GPU</td>
+        <td>Optional. The encoder and cross-encoder use Apple's GPU (MPS) or CUDA when available, and fall back
+          to the CPU otherwise.</td>
+      </tr>
+      <tr>
+        <td>Disk and network</td>
+        <td>The first run with embeddings downloads the 470 MB <code>intfloat/multilingual-e5-small</code>
+          encoder from Hugging Face. Cached stage outputs for the full data take several GB in
+          <code>work/</code>.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <h3 id="install-extras">Core vs. embedding extras</h3>
+  <pre><code>git clone https://github.com/ShanmugaRamana/Entity-Resolver.git
+cd Entity-Resolver
+python -m venv venv &amp;&amp; source venv/bin/activate
+
+pip install -e .                  <span class="comment"># core pipeline only</span>
+pip install -e ".[embed]"         <span class="comment"># core + embeddings and cross-encoder (default configuration)</span>
+pip install -r requirements.txt   <span class="comment"># the exact versions behind the reported results</span></code></pre>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Install</th>
+        <th>Adds</th>
+        <th>Use it for</th>
+      </tr>
+      <tr>
+        <td><code>pip install -e .</code></td>
+        <td>polars, numpy, scipy, scikit-learn, rapidfuzz, lightgbm, anyascii</td>
+        <td>Runs with <code>--no-embed</code>: blocking passes A–C, all features except the embedding cosine,
+          and LightGBM.</td>
+      </tr>
+      <tr>
+        <td><code>pip install -e ".[embed]"</code></td>
+        <td>torch, transformers, faiss-cpu</td>
+        <td>The full default configuration: blocking pass D, the fine-tuned encoder and the cross-encoder.</td>
+      </tr>
+      <tr>
+        <td><code>pip install -r requirements-dev.txt</code></td>
+        <td>pytest, ruff</td>
+        <td>Running the tests and the linter (install the package first).</td>
+      </tr>
+    </table>
+  </div>
+  <div class="callout">
+    <p>If you install only the core package, pass <code>--no-embed</code> to <code>scripts/train.py</code>.
+      Without that flag, training tries to load torch and fails.</p>
+  </div>
+
+  <h3 id="macos-openmp">macOS and OpenMP</h3>
+  <p>On macOS, LightGBM needs the OpenMP runtime, which does not ship with the system:</p>
+  <pre><code>brew install libomp</code></pre>
+  <p>If it is missing, training stops with <em>"LightGBM could not load its OpenMP runtime. On macOS run: brew
+      install libomp"</em>.</p>
+  <p>torch, transformers and FAISS each ship their own OpenMP runtime. Mixing those with LightGBM's in one
+    process is fragile on macOS, so the pipeline only imports them inside separate worker processes. You don't
+    need to configure anything for this.</p>
+</section>

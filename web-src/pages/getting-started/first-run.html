@@ -1,0 +1,56 @@
+<section id="first-run">
+  <p class="eyebrow">Getting started</p>
+  <h2>Your first run</h2>
+  <p class="lede">The real dataset is not included in the repository. A synthetic generator writes a small
+    dataset with the same layout and the same kinds of noise, so you can try the whole pipeline in about a
+    minute.</p>
+
+  <ol class="flow">
+    <li><b>Generate</b><code>make_synthetic.py</code> writes a small training set and test set.</li>
+    <li><b>Train</b><code>train.py</code> learns the model and prints a validation report.</li>
+    <li><b>Predict</b><code>test.py</code> writes the matches for the test set.</li>
+  </ol>
+
+  <h3 id="synthetic-data">Generate synthetic data</h3>
+  <pre><code>python scripts/make_synthetic.py --out data_synthetic</code></pre>
+  <p>The generator writes a <code>train/</code> split with two countries (US, India) and a <code>test/</code>
+    split that adds a third country (France) that never appears in training. By default each country has 300
+    Source 1 businesses per split. In the generated data:</p>
+  <ul>
+    <li>Each business has 0–6 records spread over Sources 2 and 3 (6% have none). Every record is a noisy
+      variant: typos, swapped words, changed legal suffixes, domain-style names, abbreviated street types,
+      reordered address parts, house numbers that are off by one or have a leading zero, and missing
+      addresses.</li>
+    <li>About a quarter of businesses also get distractors. Some are unrelated businesses, and some are
+      near-copies with an extra generic word and a shifted house number.</li>
+  </ul>
+
+  <h3 id="train-and-predict">Train and predict</h3>
+  <pre><code>python scripts/train.py --data-dir data_synthetic --work-dir work_synthetic --no-embed --jobs 2
+python scripts/test.py  --data-dir data_synthetic --work-dir work_synthetic --output-dir output_synthetic</code></pre>
+  <p><code>--no-embed</code> skips the neural encoder, so this works with the core install. <code>--jobs 2</code>
+    keeps the number of worker processes small. <code>train.py</code> writes the model to
+    <code>work_synthetic/model/</code>. <code>test.py</code> loads it and writes its predictions to
+    <code>output_synthetic/</code>.
+  </p>
+
+  <h3 id="read-the-output">Read the output</h3>
+  <p>At the end, training prints a report measured on validation data that was never used for tuning. It
+    covers blocking recall per pass, the macro F0.5 of each configuration, the score by country, feature
+    importance, and an error breakdown. The same numbers are saved in
+    <code>work_synthetic/model/train_report.json</code>.
+  </p>
+  <p>Prediction writes two files. Both have one row per Source 1 business, in input order:</p>
+  <pre><code><span class="comment"># output_synthetic/matching_results.tsv</span>
+source1_entity_id   matched_entity_ids
+S1-…                S2-…,S3-…,S3-…
+S1-…                                     <span class="comment"># empty: no match found</span>
+
+<span class="comment"># output_synthetic/candidate_pairs.tsv</span>
+source1_entity_id   candidate_entity_ids
+S1-…                S2-…,S2-…,S3-…,S3-…,S3-…</code></pre>
+  <p>To check the validation score yourself, run the standalone scorer on the validation files that training
+    exports:</p>
+  <pre><code>python scripts/score.py --pred  work_synthetic/model/val_matching_results.tsv \
+                        --truth work_synthetic/model/val_ground_truth.tsv</code></pre>
+</section>

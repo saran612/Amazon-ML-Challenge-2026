@@ -1,0 +1,75 @@
+<section id="dataset-format">
+  <p class="eyebrow">Getting started</p>
+  <h2>Dataset format</h2>
+  <p class="lede">Put your data in <code>dataset/</code>, or anywhere else and pass <code>--data-dir</code> or
+    set the <code>ER_DATA_DIR</code> environment variable. Only <code>dataset/README.md</code> is committed to
+    the repository. Everything else in that folder is ignored by git.</p>
+  <pre><code>dataset/
+├── train/
+│   ├── train_source1.tsv         <span class="comment"># reference records (deduplicated)</span>
+│   ├── train_source2.tsv
+│   ├── train_source3.tsv
+│   └── train_ground_truth.tsv    <span class="comment"># which S2/S3 records belong to each S1 record</span>
+└── test/
+    ├── test_source1.tsv
+    ├── test_source2.tsv
+    └── test_source3.tsv</code></pre>
+
+  <h3 id="source-files">Source files</h3>
+  <p>All six source files share one schema: tab-separated, with a header row.</p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Column</th>
+        <th>Content</th>
+      </tr>
+      <tr>
+        <td><code>entity_id</code></td>
+        <td>Unique id. The prefix names the source: <code>S1-</code>, <code>S2-</code> or <code>S3-</code>.</td>
+      </tr>
+      <tr>
+        <td><code>business_name</code></td>
+        <td>Business name, in any script.</td>
+      </tr>
+      <tr>
+        <td><code>business_address</code></td>
+        <td>Free-text address with comma-separated parts. Can be empty.</td>
+      </tr>
+      <tr>
+        <td><code>country</code></td>
+        <td>Country label. Treated as an open set: a country can appear only in <code>test/</code>.</td>
+      </tr>
+    </table>
+  </div>
+  <pre><code>entity_id       business_name         business_address                        country
+S1-925783039    Orelee's Barbershop   1795 Westchester Drive, High Point, NC  US
+S2-764573417    -- Holloway Peak Inc Seafood   105 ELM ST, MORGANTON, NC      US</code></pre>
+  <div class="callout warn">
+    <p>Files are read with quoting turned off, because names contain quote characters. A field therefore
+      cannot contain a tab or a line break. After reading, the loader checks the row count against the file's
+      line count and stops with an error if they differ.</p>
+  </div>
+
+  <h3 id="ground-truth">Ground truth</h3>
+  <p><code>train_ground_truth.tsv</code> has one row per training Source 1 record:</p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Column</th>
+        <th>Content</th>
+      </tr>
+      <tr>
+        <td><code>source1_entity_id</code></td>
+        <td>A Source 1 id.</td>
+      </tr>
+      <tr>
+        <td><code>matched_entity_ids</code></td>
+        <td>Comma-separated Source 2/3 ids of the same business. Empty if it has no match.</td>
+      </tr>
+    </table>
+  </div>
+  <pre><code>source1_entity_id   matched_entity_ids
+S1-55344266         S2-249013014,S2-197070651,S3-478195123,S3-384364074</code></pre>
+  <p>Each Source 2/3 record may appear in at most one row. Records that appear in no row are distractors: they
+    belong to none of the reference businesses.</p>
+</section>

@@ -1,0 +1,21 @@
+<section id="sampling">
+  <p class="eyebrow">Guides</p>
+  <h2>Working with a sample</h2>
+  <p class="lede">Add <code>--sample F</code> to run on a fraction of the data: minutes instead of hours, while
+    you develop or debug.</p>
+  <pre><code>python scripts/train.py --sample 0.05
+python scripts/test.py  --sample 0.05</code></pre>
+  <p>The sample is chosen to keep the data consistent. For training, it keeps a random share of S1 businesses
+    <em>with all their matched records</em>, plus the same share of distractors. For test files, which have no
+    labels, it keeps the same share of each file. The sample is seeded, so repeated runs pick the same
+    records.
+  </p>
+  <p>Sample runs use separate folders (<code>work/train_sample0.05/</code>, <code>work/model_sample0.05/</code>,
+    <code>output/sample/</code>), so they never overwrite a full model. <code>test.py</code> needs the same
+    <code>--sample</code> value as the training run it follows.
+  </p>
+  <div class="callout warn">
+    <p>A sample has fewer distractors per business than the full data, and less training data. Its scores are
+      useful for comparing changes against each other, not for predicting the full-data score.</p>
+  </div>
+</section>

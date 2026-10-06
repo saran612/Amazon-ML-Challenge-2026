@@ -1,0 +1,126 @@
+<section id="blocking">
+  <p class="eyebrow">Pipeline</p>
+  <h2>Blocking</h2>
+  <p class="lede">Comparing every record with every S1 record is impossible at this scale. Blocking keeps a
+    short list of candidate S1 records for each query while losing as few true pairs as possible.</p>
+  <p>Blocking runs separately for each country, and only same-country records are compared. For each country,
+    TF-IDF matrices (sublinear term frequency) are fitted on that country's records in the files being
+    processed.</p>
+
+  <figure class="fig">
+    <div class="fig-scroll">
+      <svg viewBox="0 0 690 226" role="img"
+        aria-label="Each query runs four retrieval passes. Their results are merged into at most 16 candidates, plus the top 3 of every pass.">
+        <path class="d-line" d="M140,112 C170,112 170,28 200,28"></path>
+        <path class="d-line" d="M470,28 C500,28 500,112 530,112"></path>
+        <rect class="d-box" x="200.5" y="8.5" width="270" height="40" rx="8"></rect>
+        <circle cx="222" cy="28" r="11" fill="var(--viz-1)"></circle>
+        <text class="d-on" x="222" y="32.5" text-anchor="middle">A</text>
+        <text class="d-t" x="242" y="25">Name character trigrams</text>
+        <text class="d-s" x="242" y="40">top 10 · typos, domains</text>
+        <path class="d-line" d="M140,112 C170,112 170,84 200,84"></path>
+        <path class="d-line" d="M470,84 C500,84 500,112 530,112"></path>
+        <rect class="d-box" x="200.5" y="64.5" width="270" height="40" rx="8"></rect>
+        <circle cx="222" cy="84" r="11" fill="var(--viz-1)"></circle>
+        <text class="d-on" x="222" y="88.5" text-anchor="middle">B</text>
+        <text class="d-t" x="242" y="81">Address words</text>
+        <text class="d-s" x="242" y="96">top 8 · trade names</text>
+        <path class="d-line" d="M140,112 C170,112 170,140 200,140"></path>
+        <path class="d-line" d="M470,140 C500,140 500,112 530,112"></path>
+        <rect class="d-box" x="200.5" y="120.5" width="270" height="40" rx="8"></rect>
+        <circle cx="222" cy="140" r="11" fill="var(--viz-1)"></circle>
+        <text class="d-on" x="222" y="144.5" text-anchor="middle">C</text>
+        <text class="d-t" x="242" y="137">Name + address words</text>
+        <text class="d-s" x="242" y="152">top 10 · generic names</text>
+        <path class="d-line" d="M140,112 C170,112 170,196 200,196"></path>
+        <path class="d-line" d="M470,196 C500,196 500,112 530,112"></path>
+        <rect class="d-box" x="200.5" y="176.5" width="270" height="40" rx="8"></rect>
+        <circle cx="222" cy="196" r="11" fill="var(--viz-1)"></circle>
+        <text class="d-on" x="222" y="200.5" text-anchor="middle">D</text>
+        <text class="d-t" x="242" y="193">Name embeddings</text>
+        <text class="d-s" x="242" y="208">top 15 · other scripts</text>
+        <rect class="d-box-accent" x="0.5" y="78.5" width="140" height="68" rx="8"></rect>
+        <text class="d-t" x="12" y="106">Query</text>
+        <text class="d-s" x="12" y="124">one S2/S3 record</text>
+        <rect class="d-box-accent" x="530.5" y="66.5" width="159" height="92" rx="8"></rect>
+        <text class="d-t" x="542" y="94">Candidates</text>
+        <text class="d-s" x="542" y="114">16 best by score</text>
+        <text class="d-s" x="542" y="130">+ top 3 of each pass</text>
+      </svg>
+    </div>
+  </figure>
+
+  <h3 id="blocking-passes">The four passes</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Pass</th>
+        <th>Search on</th>
+        <th class="num">Top k</th>
+        <th>Catches</th>
+      </tr>
+      <tr>
+        <td>A</td>
+        <td>Character 3-gram TF-IDF of the core name, spaces removed</td>
+        <td class="num">10</td>
+        <td>Typos, reordered words, domain names</td>
+      </tr>
+      <tr>
+        <td>B</td>
+        <td>Word TF-IDF of the address</td>
+        <td class="num">8</td>
+        <td>Trade names: a different name at the same address</td>
+      </tr>
+      <tr>
+        <td>C</td>
+        <td>Word TF-IDF of core name + address</td>
+        <td class="num">10</td>
+        <td>Generic names that only the address tells apart</td>
+      </tr>
+      <tr>
+        <td>D</td>
+        <td>Nearest names in the embedding space (FAISS)</td>
+        <td class="num">15</td>
+        <td>The same name written in another script</td>
+      </tr>
+    </table>
+  </div>
+  <p>Passes A–C are sparse top-k searches, run in parallel over chunks of queries. For these searches only,
+    columns that appear in more than 1% of a country's S1 records (with a floor of 200) are ignored: they carry
+    little signal and account for most of the cost. Pass D uses an exact index for fewer than 20k S1 records,
+    and an IVF index otherwise (about 4√n lists, 16 probed).</p>
+
+  <h3 id="candidate-cap">Ranking and capping</h3>
+  <p>The four passes' results are combined, and each pair gets a combined score:</p>
+  <div class="formula">
+    <div>comb = 0.4 · cos_char + 0.4 · cos_joint + 0.2 · cos_addr</div>
+  </div>
+  <p>A query keeps its 16 best candidates by <code>comb</code>, plus anything ranked in the top 3 of any single
+    pass. The second rule protects a pass that is the only one to find a match, such as an embedding hit on a
+    name in another script. For every pair, blocking also records its rank in each pass, its <code>comb</code>
+    rank, the margin to the query's best other candidate, and the number of candidates. These all become
+    features.</p>
+
+  <h3 id="blocking-recall">Recall and reduction</h3>
+  <div class="stats">
+    <div class="stat">
+      <div class="num">98.45%</div>
+      <div class="lbl">of true pairs kept</div>
+    </div>
+    <div class="stat">
+      <div class="num">19.3</div>
+      <div class="lbl">candidates per query</div>
+    </div>
+    <div class="stat">
+      <div class="num">0.002%</div>
+      <div class="lbl">of same-country comparisons made</div>
+    </div>
+    <div class="stat">
+      <div class="num">0.995</div>
+      <div class="lbl">ceiling for a perfect matcher</div>
+    </div>
+  </div>
+  <p>These are measured on the validation data. The ceiling is the macro F0.5 a perfect matcher would reach on
+    these candidates, so it bounds everything that follows. The training report also lists recall per pass and
+    on hard slices (non-Latin names, empty addresses, domains, trade names).</p>
+</section>

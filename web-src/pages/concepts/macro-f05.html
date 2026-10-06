@@ -1,0 +1,65 @@
+<section id="macro-f05">
+  <p class="eyebrow">Core concepts</p>
+  <h2>Macro F0.5 scoring</h2>
+  <p class="lede">Results are scored with macro F0.5: F0.5 is computed separately for each S1 record, then
+    averaged over all S1 records.</p>
+  <p>For one S1 record, with <code>tp</code> correct predictions, <code>n_pred</code> predictions and
+    <code>n_true</code> true matches:
+  </p>
+  <div class="formula">
+    <div>precision P = tp / n_pred<span class="sp"></span>recall R = tp / n_true</div>
+    <div>F0.5 = 1.25 · P · R / (0.25 · P + R) = 1.25 · tp / (0.25 · n_true + n_pred)</div>
+  </div>
+  <p>Worked example: predict <code>S2-00047, S2-00193, S3-00812</code> when the truth is <code>S2-00047,
+      S3-00812</code>. Then P = 2/3, R = 1, and F0.5 = 0.714. Training checks this example
+    before it starts, and <code>scripts/score.py --self-test</code> reproduces it.</p>
+
+  <h3 id="precision-weight">Why precision counts double</h3>
+  <p>F0.5 weights precision twice as much as recall, so a wrong merge costs more than a missed match. For an S1
+    record with 4 true matches:</p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Prediction</th>
+        <th>Picture</th>
+        <th class="num">tp</th>
+        <th class="num">n_pred</th>
+        <th class="num">F0.5</th>
+      </tr>
+      <tr>
+        <td>3 correct, 1 missed</td>
+        <td><span class="pic" role="img" aria-label="three correct, one missed"><i class="hit"></i><i
+              class="hit"></i><i class="hit"></i><i class="miss"></i></span></td>
+        <td class="num">3</td>
+        <td class="num">3</td>
+        <td class="num"><strong>0.94</strong></td>
+      </tr>
+      <tr>
+        <td>All 4 correct, plus 1 wrong</td>
+        <td><span class="pic" role="img" aria-label="four correct, one wrong"><i class="hit"></i><i
+              class="hit"></i><i class="hit"></i><i class="hit"></i><i class="wrong">×</i></span></td>
+        <td class="num">4</td>
+        <td class="num">5</td>
+        <td class="num"><strong>0.83</strong></td>
+      </tr>
+    </table>
+  </div>
+  <div class="legend after-table">
+    <span><span class="pic"><i class="hit"></i></span>correct match</span>
+    <span><span class="pic"><i class="miss"></i></span>missed match</span>
+    <span><span class="pic"><i class="wrong">×</i></span>wrong match</span>
+  </div>
+  <p>Because the score is averaged per S1 record, the best set of matches depends on each record's own
+    probabilities. That is why the <a href="../pipeline/decision.html">decision layer</a> chooses a set for each S1 record
+    instead of applying one global threshold.</p>
+
+  <h3 id="empty-predictions">Businesses with no match</h3>
+  <p>An S1 record with no true match (a "singleton") is still scored:</p>
+  <ul>
+    <li>An empty prediction scores <strong>1.0</strong>.</li>
+    <li>Any prediction at all scores <strong>0.0</strong>.</li>
+  </ul>
+  <p>An S1 record that does have matches but gets an empty prediction scores 0.0, as does a non-empty prediction
+    with no correct ids. Because every singleton is worth a full point when it is left empty, the decision
+    layer explicitly compares the chance of "no match" against every possible set of matches.</p>
+</section>

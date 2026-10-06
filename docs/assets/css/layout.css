@@ -1,0 +1,605 @@
+/* ---- Page frame ---- */
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.main-container {
+  display: flex;
+  flex: 1;
+  width: 100%;   /* with auto side margins it would otherwise shrink to fit a short page */
+  overflow: hidden;
+  min-height: 0;
+  margin-top: 64px;
+  margin-bottom: 64px;
+}
+
+/* ---- Sidebar ---- */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  padding: 12px 20px 12px 0;
+  overflow-y: auto;
+}
+
+.nav-backdrop {
+  display: none;
+}
+
+.sidebar-sticky {
+  padding: 0 8px 24px 0;
+}
+
+.nav-group+.nav-group {
+  margin-top: 26px;
+}
+
+.sidebar h4 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-muted);
+  margin: 0 0 10px;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0 0 0 5px;
+  padding: 0 0 0 16px;
+  border-left: 1px solid var(--border);
+}
+
+.nav-list li {
+  position: relative;
+}
+
+.sidebar a {
+  display: block;
+  position: relative;
+  color: var(--fg-muted);
+  font-size: 14px;
+  padding: 5px 0;
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  color: var(--accent);
+}
+
+.nav-list>li>a.active,
+.nav-list>li.has-active>a {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+/* dot on the rail marking the current top-level page */
+.nav-list>li>a.active::before,
+.nav-list>li.has-active>a::before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--bg);
+}
+
+.nav-list li.has-sub>a {
+  padding-right: 26px;
+}
+
+.nav-toggle {
+  position: absolute;
+  right: 0;
+  top: 4px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+
+.nav-toggle:hover {
+  background: var(--bg-soft);
+  color: var(--fg);
+}
+
+.nav-toggle svg {
+  transition: transform 0.15s ease;
+}
+
+li.open>.nav-toggle svg {
+  transform: rotate(90deg);
+}
+
+.nav-sub {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0 0 0 12px;
+  display: none;
+}
+
+li.open>.nav-sub {
+  display: block;
+}
+
+.nav-sub a {
+  font-size: 13px;
+  padding: 3px 0;
+}
+
+.nav-sub a.active {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ---- Content pane ---- */
+/* keep headings clear when jumped to */
+.content [id] {
+  scroll-margin-top: 32px;
+}
+
+.content {
+  padding: 12px 32px 24px 48px;
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+/* a standalone page has no sidebar: its content lines up with the logo */
+.main-container > .content:first-child {
+  padding-left: 0;
+}
+
+/* ---- Nav ---- */
+nav {
+  font-family: 'Poppins', sans-serif;
+  position: relative;   /* so the z-index applies and the search results sit above the page */
+  z-index: 10;
+  margin-top: 20px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+nav .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 400;
+  font-size: 22px;
+  color: inherit;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.brand img {
+  width: 28px;
+  height: 28px;
+}
+
+.navlinks {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.navlinks > a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fg-muted);
+}
+
+.navlinks > a:hover {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+/* ---- Search ---- */
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: clamp(140px, 22vw, 240px);
+}
+
+.search > svg {
+  position: absolute;
+  left: 10px;
+  color: var(--fg-muted);
+  pointer-events: none;
+}
+
+.search input {
+  width: 100%;
+  height: 34px;
+  padding: 0 30px 0 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-soft);
+  color: var(--fg);
+  font: inherit;
+  font-size: 13.5px;
+  outline: none;
+}
+
+.search input::placeholder {
+  color: var(--fg-muted);
+}
+
+.search input:focus {
+  border-color: var(--accent);
+  background: var(--bg);
+}
+
+/* keyboard hint, shown while the box is idle */
+.search kbd {
+  position: absolute;
+  right: 8px;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--fg-muted);
+  pointer-events: none;
+}
+
+.search:focus-within kbd {
+  display: none;
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  width: min(440px, 50vw);   /* opens to the right of the box's left edge; 50vw keeps it on screen when narrow */
+  max-height: min(60vh, 480px);
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.search-results[hidden] {
+  display: none;
+}
+
+.search-hit {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 7px;
+  color: var(--fg);
+}
+
+/* one highlight only: pointing at a result makes it the active one (see search.js) */
+.search-hit.active {
+  background: var(--accent-soft);
+}
+
+.search-hit:hover {
+  text-decoration: none;
+}
+
+.search-hit span {
+  display: block;
+}
+
+.search-hit .hit-path,
+.search-hit .hit-text {
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.search-hit .hit-text {
+  margin-top: 2px;
+  line-height: 1.5;
+}
+
+.search-results mark {
+  background: none;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.search-empty {
+  padding: 10px;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.nav-divider {
+  width: 1px;
+  height: 16px;
+  background-color: var(--border);
+}
+
+.theme-toggle,
+.menu-toggle {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+
+.theme-toggle:hover,
+.menu-toggle:hover {
+  color: var(--fg);
+}
+
+/* opens the sidebar drawer; only shown where the sidebar is a drawer */
+.menu-toggle {
+  display: none;
+}
+
+/* the icon shows the theme in use: sun for light, moon for dark */
+.theme-toggle .icon-moon,
+:root[data-theme="dark"] .theme-toggle .icon-sun {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+  display: block;
+}
+
+/* the logo is a dark teal drawn for a white page */
+:root[data-theme="dark"] .brand img {
+  filter: brightness(1.9);
+}
+
+/* ---- Footer ---- */
+footer {
+  padding: 40px 0 60px;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 13.5px;
+}
+
+footer a {
+  color: var(--fg-muted);
+}
+
+footer .flinks {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.doc footer {
+  padding: 48px 0 0;
+  border-top: 1px solid var(--border);
+}
+
+/* ---- Previous / next page ---- */
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 40px;
+}
+
+.pager a {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* the "Previous" / "Next" label, with its arrow on the same line */
+.pager small {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.pager svg {
+  flex: none;
+}
+
+.pager .next {
+  margin-left: auto;
+  text-align: right;
+}
+
+.pager .next small {
+  justify-content: flex-end;
+}
+
+/* ================================================================ Small screens */
+/* Below 900px the sidebar is a drawer that slides in from the left. The menu button in the top bar
+   opens it (sidebar.js puts nav-open on <html>); the backdrop, Esc or choosing a link closes it. */
+@media (max-width: 899px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    width: min(300px, 84vw);
+    padding: 24px 12px 24px 20px;
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    transform: translateX(-100%);
+    visibility: hidden;   /* keeps the closed drawer's links out of the tab order */
+    transition: transform 0.2s ease, visibility 0.2s;
+  }
+
+  .nav-open .sidebar {
+    transform: none;
+    visibility: visible;
+    box-shadow: var(--shadow);
+  }
+
+  .nav-open .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  /* larger touch targets */
+  .sidebar a {
+    padding: 7px 0;
+  }
+
+  .nav-sub a {
+    padding: 5px 0;
+  }
+
+  .nav-toggle {
+    top: 6px;
+  }
+}
+
+@media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+}
+
+@media (max-width: 899px) {
+  .menu-toggle {
+    display: flex;
+  }
+
+  .content {
+    padding-left: 0;
+  }
+}
+
+/* Phones and small tablets: the top bar becomes two rows. Logo and icon buttons on the first,
+   the search box across the second. */
+@media (max-width: 760px) {
+  .wrap {
+    padding: 0 16px;
+  }
+
+  nav {
+    margin-top: 6px;
+  }
+
+  nav .wrap {
+    flex-wrap: wrap;
+    gap: 8px 4px;
+    height: auto;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .navlinks {
+    display: contents;   /* its children line up directly in the top bar */
+  }
+
+  .brand {
+    margin-right: auto;
+    font-size: 19px;
+  }
+
+  .brand img {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* links keep their icon only; the name stays on the link as its aria-label */
+  .navlinks > a span,
+  .nav-divider {
+    display: none;
+  }
+
+  .navlinks > a,
+  .theme-toggle,
+  .menu-toggle {
+    padding: 7px;
+  }
+
+  .menu-toggle {
+    margin-right: -7px;   /* the icon, not its padding, lines up with the page edge */
+  }
+
+  .search {
+    order: 1;
+    flex: 0 0 100%;
+    width: auto;
+  }
+
+  .search input {
+    height: 38px;
+    padding-right: 10px;
+    font-size: 16px;   /* below 16px iOS zooms the page when the box is focused */
+  }
+
+  .search kbd {
+    display: none;
+  }
+
+  .search-results {
+    width: 100%;
+    max-height: 60vh;
+  }
+
+  /* The scrolling pane runs to the right edge of the screen, so its scrollbar sits there.
+     The side gutter moves from the container to the pane's own padding. */
+  .main-container {
+    margin-top: 10px;
+    margin-bottom: 0;
+    padding-right: 0;
+  }
+
+  .content {
+    padding: 0 16px 24px 0;
+  }
+
+  .pager {
+    padding-bottom: 28px;
+  }
+
+  footer .flinks {
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+}
+
+/* very narrow phones */
+@media (max-width: 360px) {
+  .brand {
+    font-size: 17px;
+    gap: 8px;
+  }
+
+  .navlinks > a,
+  .theme-toggle,
+  .menu-toggle {
+    padding: 5px;
+  }
+
+  .menu-toggle {
+    margin-right: -5px;
+  }
+}

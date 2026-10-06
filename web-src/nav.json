@@ -1,0 +1,71 @@
+[
+  {
+    "title": "Getting started",
+    "pages": [
+      {"title": "Introduction", "path": "index.html"},
+      {"title": "Installation", "path": "getting-started/installation.html"},
+      {"title": "Your first run", "path": "getting-started/first-run.html"},
+      {"title": "Dataset format", "path": "getting-started/dataset-format.html"},
+      {"title": "Download the dataset", "path": "dataset.html", "standalone": true}
+    ]
+  },
+  {
+    "title": "Core concepts",
+    "pages": [
+      {"title": "The matching problem", "path": "concepts/matching-problem.html"},
+      {"title": "Macro F0.5 scoring", "path": "concepts/macro-f05.html"},
+      {"title": "Pipeline at a glance", "path": "concepts/pipeline-overview.html"}
+    ]
+  },
+  {
+    "title": "Pipeline",
+    "pages": [
+      {"title": "Normalization", "path": "pipeline/normalization.html"},
+      {"title": "Learned vocabulary", "path": "pipeline/learned-vocabulary.html"},
+      {"title": "Name embeddings", "path": "pipeline/embeddings.html"},
+      {"title": "Blocking", "path": "pipeline/blocking.html"},
+      {"title": "Features", "path": "pipeline/features.html"},
+      {"title": "Matcher", "path": "pipeline/matcher.html"},
+      {"title": "Decision layer", "path": "pipeline/decision.html"}
+    ]
+  },
+  {
+    "title": "Guides",
+    "pages": [
+      {"title": "Training a model", "path": "guides/training.html"},
+      {"title": "Running predictions", "path": "guides/predicting.html"},
+      {"title": "Checking results", "path": "guides/checking-results.html"},
+      {"title": "Working with a sample", "path": "guides/sampling.html"},
+      {"title": "Caching and resuming", "path": "guides/caching.html"},
+      {"title": "Without embeddings", "path": "guides/without-embeddings.html"},
+      {"title": "Unseen countries", "path": "guides/unseen-countries.html"},
+      {"title": "Simulating a denser crowd", "path": "guides/denser-crowd.html"}
+    ]
+  },
+  {
+    "title": "Reference",
+    "pages": [
+      {"title": "Command line", "path": "reference/cli.html"},
+      {"title": "Configuration", "path": "reference/configuration.html"},
+      {"title": "Output files", "path": "reference/output-files.html"},
+      {"title": "Module map", "path": "reference/modules.html"}
+    ]
+  },
+  {
+    "title": "Evaluation",
+    "pages": [
+      {"title": "Validation protocol", "path": "evaluation/validation.html"},
+      {"title": "Results", "path": "evaluation/results.html"},
+      {"title": "Error analysis", "path": "evaluation/error-analysis.html"},
+      {"title": "Development log", "path": "evaluation/development-log.html"}
+    ]
+  },
+  {
+    "title": "Project",
+    "pages": [
+      {"title": "Performance and memory", "path": "project/performance.html"},
+      {"title": "Testing and CI", "path": "project/testing.html"},
+      {"title": "License", "path": "project/license.html"}
+    ]
+  }
+]

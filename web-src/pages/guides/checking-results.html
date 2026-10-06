@@ -1,0 +1,25 @@
+<section id="checking-results">
+  <p class="eyebrow">Guides</p>
+  <h2>Checking results</h2>
+  <p class="lede"><code>scripts/score.py</code> is a standalone scorer. It uses only the Python standard library,
+    so it runs anywhere and shares no code with the pipeline it checks.</p>
+  <pre><code>python scripts/score.py --pred work/model/val_matching_results.tsv \
+                        --truth work/model/val_ground_truth.tsv \
+                        --source1 dataset/train/train_source1.tsv \
+                        --per-entity per_entity.tsv</code></pre>
+  <p>It prints macro F0.5, pair precision and pair recall. It also breaks the score down by singletons and
+    non-singletons, by number of true matches (0, 1–2, 3–5, 6+), and by country when you pass
+    <code>--source1</code>. <code>--per-entity</code> writes every S1 record's F0.5 together with its numbers
+    of predicted and true matches, which makes it easy to sort and inspect the worst cases.
+  </p>
+  <p>The scorer is forgiving about format but reports every problem it finds:</p>
+  <ul>
+    <li>A missing S1 row is scored as an empty prediction.</li>
+    <li>Duplicate ids in a list are counted once.</li>
+    <li>Predicted S1 ids that are not in the ground truth are ignored.</li>
+    <li>A header that differs from <code>source1_entity_id</code>, <code>matched_entity_ids</code> is
+      flagged.</li>
+  </ul>
+  <p>Run <code>python scripts/score.py --self-test</code> to check the metric itself against the worked
+    example.</p>
+</section>

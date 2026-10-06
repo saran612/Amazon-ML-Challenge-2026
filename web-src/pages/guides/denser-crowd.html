@@ -1,0 +1,14 @@
+<section id="denser-crowd">
+  <p class="eyebrow">Guides</p>
+  <h2>Simulating a denser crowd</h2>
+  <p class="lede">The test files have more S2/S3 records per S1 record than the training files (5.76 vs. 4.67).
+    <code>--sim-drop</code> lets you train and tune in a similarly crowded setting.
+  </p>
+  <pre><code>python scripts/train.py --sim-drop 0.2</code></pre>
+  <p>This removes the given share of S1 records outside the validation set from the index. Their S2/S3 records
+    stay, and now match nothing, so they become distractors that look like real businesses. Validation S1
+    records are never removed. With <code>0.2</code>, the distractor share rises from 26% to 40%.</p>
+  <p>In the reported experiment, validation scored 0.9850 against 0.9861 without it, and the chosen threshold
+    barely moved. The removed businesses' records are <em>loose</em> distractors, while the hard cases are
+    near-copies of businesses that <em>are</em> in the index. The option is off by default.</p>
+</section>

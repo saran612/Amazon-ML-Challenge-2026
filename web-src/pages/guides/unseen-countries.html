@@ -1,0 +1,56 @@
+<section id="unseen-countries">
+  <p class="eyebrow">Guides</p>
+  <h2>Unseen countries</h2>
+  <p class="lede">The test files contain a country (France) that does not appear in the training data. The
+    pipeline is designed so that such a country needs no configuration.</p>
+  <ul>
+    <li>The model has no country feature.</li>
+    <li>Filler words, places, place links and name rarity are computed on the test files, so the new country
+      gets its own statistics.</li>
+    <li>The new country gets the shared token map: the variants that all training countries agree on.</li>
+  </ul>
+  <h4>Measuring transfer with <code>--proxy</code></h4>
+  <p><code>--proxy</code> simulates an unseen country with the training data. It trains two extra models, one on
+    each of the two largest training countries, and scores each on the <em>other</em> country:</p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Direction</th>
+        <th class="num">First pipeline</th>
+        <th class="num">Current pipeline</th>
+        <th style="width: 34%"><span class="range-axis"><span>0.90</span><span>1.00</span></span></th>
+      </tr>
+      <tr>
+        <td>Train on US → evaluate on India</td>
+        <td class="num">0.925</td>
+        <td class="num"><strong>0.934</strong></td>
+        <td>
+          <div class="range" role="img" aria-label="0.925 to 0.934"><span class="seg"
+              style="left: 25%; width: 9%"></span><span class="pt" style="left: 25%"></span><span class="pt to"
+              style="left: 34%"></span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>Train on India → evaluate on US</td>
+        <td class="num">0.963</td>
+        <td class="num"><strong>0.976</strong></td>
+        <td>
+          <div class="range" role="img" aria-label="0.963 to 0.976"><span class="seg"
+              style="left: 63%; width: 13%"></span><span class="pt" style="left: 63%"></span><span class="pt to"
+              style="left: 76%"></span></div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="legend after-table">
+    <span><i class="v3 round"></i>first pipeline</span>
+    <span><i class="v1 round"></i>current pipeline</span>
+    <span>For comparison, the same-country score is 0.986.</span>
+  </div>
+  <p>Most of the drop is in precision (wrong merges), and it is worst on businesses that have no match.
+    <code>--proxy</code> therefore also searches for one stricter minimum match probability for unseen countries
+    (0 to 0.98). It keeps that value only if it improves <em>both</em> directions on half B. No value has done
+    so yet, so the rule is not applied. The proxy models skip the cross-encoder and consistency steps, and their
+    encoder has seen pairs from both countries, so these numbers are approximate.
+  </p>
+</section>

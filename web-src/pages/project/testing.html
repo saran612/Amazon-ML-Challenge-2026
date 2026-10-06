@@ -1,0 +1,56 @@
+<section id="testing">
+  <p class="eyebrow">Project</p>
+  <h2>Testing and CI</h2>
+  <pre><code>pip install -e . -r requirements-dev.txt
+pytest -m "not e2e"          <span class="comment"># unit tests, seconds</span>
+pytest -m e2e                <span class="comment"># end to end on synthetic data, about a minute</span>
+ruff check src scripts tests</code></pre>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Test file</th>
+        <th>Covers</th>
+      </tr>
+      <tr>
+        <td><code>test_normalize.py</code></td>
+        <td>Indic vowels survive transliteration; accents are folded; domain names; digits split from
+          letters in addresses.</td>
+      </tr>
+      <tr>
+        <td><code>test_vocab.py</code></td>
+        <td>The abbreviation test; token-map mining; the shared map keeps only variants all countries agree on;
+          first house number.</td>
+      </tr>
+      <tr>
+        <td><code>test_features.py</code></td>
+        <td>House-number distance; competitors among candidates with the same name.</td>
+      </tr>
+      <tr>
+        <td><code>test_decide.py</code></td>
+        <td>Each record goes to its best S1 record; global threshold; expected F0.5 keeps the best prefix and
+          returns an empty set for a likely singleton.</td>
+      </tr>
+      <tr>
+        <td><code>test_metrics.py</code>, <code>test_scorer.py</code></td>
+        <td>The worked example, singletons and empty predictions, macro averaging, in both the pipeline metric
+          and the standalone scorer.</td>
+      </tr>
+      <tr>
+        <td><code>test_pipeline_utils.py</code></td>
+        <td>Query chunks never split a query; cache keys follow the settings.</td>
+      </tr>
+      <tr>
+        <td><code>test_e2e.py</code></td>
+        <td>Trains and predicts on synthetic data without embeddings. Checks blocking recall &gt; 0.9 and
+          macro F0.5 &gt; 0.7, one output row per S1 record, and that matches are a subset of the
+          candidates.</td>
+      </tr>
+    </table>
+  </div>
+  <p>GitHub Actions runs the unit tests and ruff on every push and pull request, using Python 3.11 on Ubuntu.
+    The end-to-end test is not part of CI. Run it by hand after changing the pipeline. Ruff checks the
+    <code>E</code>, <code>F</code> and <code>W</code> rule sets, with a line length of 130.
+  </p>
+  <p>To test the embedding plumbing without torch, set <code>ER_EMBED_BACKEND=hashing</code>. This replaces
+    the encoder with hashed character trigrams. It exists only for smoke tests, and real runs never set it.</p>
+</section>

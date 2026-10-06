@@ -1,0 +1,76 @@
+<section id="error-analysis">
+  <p class="eyebrow">Evaluation</p>
+  <h2>Error analysis</h2>
+  <p class="lede">Every training run ends with an error analysis on half B. It shows where the remaining points
+    are lost and what fixing each part would be worth.</p>
+  <p>Every false positive (a wrongly matched record) and every false negative (a missed true match) is tagged
+    with the slices it belongs to. For each slice, the report gives the <em>headroom</em>: the gain in macro
+    F0.5 if every error in that slice were fixed. That is an upper bound on what any improvement targeting the
+    slice could achieve.</p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Slice</th>
+        <th>Definition</th>
+        <th style="width: 30%">Headroom (macro F0.5)</th>
+      </tr>
+      <tr>
+        <td>Generic name</td>
+        <td>Five or more S1 records share the core name</td>
+        <td><div class="barrow"><span class="bar" style="width: 72%"></span><span class="val">+0.009</span></div></td>
+      </tr>
+      <tr>
+        <td>Empty address</td>
+        <td>The record has no address</td>
+        <td><div class="barrow"><span class="bar" style="width: 56%"></span><span class="val">+0.007</span></div></td>
+      </tr>
+      <tr>
+        <td>Blocking miss</td>
+        <td>The true pair was never retrieved</td>
+        <td><div class="barrow"><span class="bar" style="width: 48%"></span><span class="val">+0.006</span></div></td>
+      </tr>
+      <tr>
+        <td>Non-Latin name</td>
+        <td>The record's name contains non-ASCII characters</td>
+        <td>listed in each report</td>
+      </tr>
+      <tr>
+        <td>Domain name</td>
+        <td>The record's name is a web domain</td>
+        <td>listed in each report</td>
+      </tr>
+      <tr>
+        <td>Trade name</td>
+        <td>Core-name token-set similarity below 50</td>
+        <td>listed in each report</td>
+      </tr>
+    </table>
+  </div>
+  <p>A slice's headroom only counts errors inside that slice, and slices overlap, so the headrooms do not add
+    up. <code>error_examples.tsv</code> holds a random sample of the actual errors. Reading those examples is
+    how the house-number problem was found:</p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Kind</th>
+        <th>Record</th>
+        <th>S1 record</th>
+      </tr>
+      <tr>
+        <td>Missed match</td>
+        <td>cascade committee of albion, <strong>305</strong> h street</td>
+        <td><strong>304</strong> h street</td>
+      </tr>
+      <tr>
+        <td>Missed match</td>
+        <td>jordan madlin, <strong>61</strong> greenleaf drive</td>
+        <td><strong>60</strong> greenleaf drive</td>
+      </tr>
+      <tr>
+        <td>Wrong merge</td>
+        <td>fresh property group, <strong>2026</strong> n dakota avenue</td>
+        <td><strong>2005</strong> n dakota avenue</td>
+      </tr>
+    </table>
+  </div>
+</section>

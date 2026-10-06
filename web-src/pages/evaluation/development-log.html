@@ -1,0 +1,90 @@
+<section id="development-log">
+  <p class="eyebrow">Evaluation</p>
+  <h2>Development log</h2>
+  <p class="lede">How the model reached its current form, one change at a time. All scores are macro F0.5 on
+    half B.</p>
+  <figure class="fig">
+    <p class="fig-title">Macro F0.5 after each development step</p>
+    <p class="fig-sub">Validation half B. The axis starts at 0.975: step 0, the blocking score alone, scores
+      0.725 and is off the scale.</p>
+    <div class="fig-scroll" data-chart="devlog"></div>
+    <div class="legend">
+      <span><i class="v1 round"></i>adopted</span>
+      <span><i class="ring"></i>tried,
+        kept as an option</span>
+    </div>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Step</th>
+        <th>Change</th>
+        <th class="num">Macro F0.5</th>
+        <th class="num">P / R</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>Blocking score only (reference line)</td>
+        <td class="num">0.725</td>
+        <td class="num">0.77 / 0.81</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Full pipeline: four passes, 58 features, two-stage LightGBM, expected-F0.5 decision</td>
+        <td class="num">0.9775</td>
+        <td class="num">0.994 / 0.949</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>More candidates (12 → 16), local name rarity. No real gain.</td>
+        <td class="num">0.9777</td>
+        <td class="num">0.994 / 0.949</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>House-number distance, sibling and competitor features; 30M training rows, 255 leaves</td>
+        <td class="num">0.9830</td>
+        <td class="num">0.995 / 0.963</td>
+      </tr>
+      <tr class="hl">
+        <td>4</td>
+        <td>Cross-encoder on the uncertain band (default)</td>
+        <td class="num">0.9861</td>
+        <td class="num">0.998 / 0.964</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Simulated denser crowd (kept as an option)</td>
+        <td class="num">0.9850</td>
+        <td class="num">0.996 / 0.965</td>
+      </tr>
+    </table>
+  </div>
+  <div class="stats two">
+    <div class="stat">
+      <div class="num">−65%</div>
+      <div class="lbl">wrong merges after steps 3 and 4: 1,024 → 359</div>
+    </div>
+    <div class="stat">
+      <div class="num">−30%</div>
+      <div class="lbl">missed matches after steps 3 and 4: 9,828 → 6,843</div>
+    </div>
+  </div>
+  <p>The lessons are more useful than the numbers:</p>
+  <ul>
+    <li><strong>More candidates were not the answer.</strong> Raising blocking recall from 98.27% to 98.45% gave
+      the matcher candidates it could not use.</li>
+    <li><strong>Reading the errors was.</strong> The error examples pointed at house numbers and at same-name
+      neighbours. The features built from that (step 3) were the biggest single improvement, mostly in
+      recall.</li>
+    <li><strong>A small, targeted expensive model pays off.</strong> The cross-encoder only sees about 0.7% of
+      pairs, yet added +0.003.</li>
+  </ul>
+  <p>The full write-up is in <a
+      href="https://github.com/ShanmugaRamana/Entity-Resolver/blob/dev-main/docs/development-log.md">docs/development-log.md</a>,
+    and the method in <a
+      href="https://github.com/ShanmugaRamana/Entity-Resolver/blob/dev-main/docs/methodology.md">docs/methodology.md</a>.
+  </p>
+</section>
+
+<script src="../assets/js/devlog-chart.js"></script>

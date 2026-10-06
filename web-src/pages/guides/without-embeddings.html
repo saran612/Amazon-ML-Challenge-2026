@@ -1,0 +1,19 @@
+<section id="without-embeddings">
+  <p class="eyebrow">Guides</p>
+  <h2>Without embeddings</h2>
+  <p class="lede">With <code>--no-embed</code>, the pipeline runs on the core install. It needs no torch, no
+    model download and no GPU.</p>
+  <pre><code>python scripts/train.py --no-embed
+python scripts/test.py</code></pre>
+  <p>What changes:</p>
+  <ul>
+    <li>Blocking pass D is skipped, so a name written in another script can only be found through its
+      transliteration or its address.</li>
+    <li>The embedding cosine feature is set to −1, and the pass-D rank to 99.</li>
+    <li>The cross-encoder is switched off too, since it needs torch.</li>
+  </ul>
+  <p>Expect the largest loss on non-Latin names, which are 7.2% of true matches. This setup is still the fastest
+    way to try the pipeline, and it is what the end-to-end test and the synthetic quick start use.</p>
+  <p>Two related options keep embeddings but change the encoder. <code>--no-finetune</code> uses the pretrained
+    weights as they are, and <code>--embed-model NAME_OR_PATH</code> uses a different encoder.</p>
+</section>

@@ -1,0 +1,139 @@
+<section id="matching-problem">
+  <p class="eyebrow">Core concepts</p>
+  <h2>The matching problem</h2>
+  <p class="lede">The task: for every Source 1 record, return every Source 2 and Source 3 record of the same
+    business, and nothing else.</p>
+
+  <figure class="fig">
+    <p class="fig-title">One reference business, several noisy records, and distractors</p>
+    <p class="fig-sub">Illustrative records. Lines connect the records that describe the same business.</p>
+    <div class="fig-scroll">
+      <svg viewBox="0 0 690 292" role="img"
+        aria-label="A Source 1 business linked to three matching records in Sources 2 and 3. Two other records are distractors, and a second Source 1 business has no match.">
+        <text class="d-e" x="0" y="12">SOURCE 1 · REFERENCE</text>
+        <text class="d-e" x="330" y="12">SOURCES 2 AND 3 · RECORDS</text>
+        <path class="d-line-accent" d="M220,102 C275,102 275,50 330,50"></path>
+        <path class="d-line-accent" d="M220,102 L330,102"></path>
+        <path class="d-line-accent" d="M220,102 C275,102 275,154 330,154"></path>
+        <rect class="d-box-accent" x="0.5" y="74.5" width="220" height="56" rx="8"></rect>
+        <text class="d-t" x="14" y="98">Cedar Dental LLC</text>
+        <text class="d-s" x="14" y="116">412 Maple Street, Riverton</text>
+        <rect class="d-box-accent" x="0.5" y="206.5" width="220" height="74" rx="8"></rect>
+        <text class="d-t" x="14" y="230">Quartz Motors Inc</text>
+        <text class="d-s" x="14" y="248">9 Summit Avenue, Oakridge</text>
+        <text class="d-s" x="14" y="266">No match → empty answer</text>
+        <rect class="d-box" x="330.5" y="28.5" width="359" height="44" rx="8"></rect>
+        <rect x="330.5" y="28.5" width="4" height="44" fill="var(--viz-1)"></rect>
+        <text class="d-e" x="346" y="47">S2</text>
+        <text class="d-t" x="372" y="47">CEDAR DENTAL</text>
+        <text class="d-s" x="372" y="63">412 MAPLE ST, RIVERTON, OH</text>
+        <text class="d-s" x="662" y="47" text-anchor="end">match</text>
+        <circle cx="674" cy="43" r="4" fill="var(--viz-1)"></circle>
+        <rect class="d-box" x="330.5" y="80.5" width="359" height="44" rx="8"></rect>
+        <rect x="330.5" y="80.5" width="4" height="44" fill="var(--viz-1)"></rect>
+        <text class="d-e" x="346" y="99">S3</text>
+        <text class="d-t" x="372" y="99">Cedar Dentl LLC</text>
+        <text class="d-s" x="372" y="115">413 Maple Street, Riverton</text>
+        <text class="d-s" x="662" y="99" text-anchor="end">match</text>
+        <circle cx="674" cy="95" r="4" fill="var(--viz-1)"></circle>
+        <rect class="d-box" x="330.5" y="132.5" width="359" height="44" rx="8"></rect>
+        <rect x="330.5" y="132.5" width="4" height="44" fill="var(--viz-1)"></rect>
+        <text class="d-e" x="346" y="151">S3</text>
+        <text class="d-t" x="372" y="151">cedardental.com</text>
+        <text class="d-s" x="372" y="167">no address</text>
+        <text class="d-s" x="662" y="151" text-anchor="end">match</text>
+        <circle cx="674" cy="147" r="4" fill="var(--viz-1)"></circle>
+        <rect class="d-box-soft" x="330.5" y="184.5" width="359" height="44" rx="8"></rect>
+        <text class="d-e" x="346" y="203">S2</text>
+        <text class="d-t" x="372" y="203">CEDAR GROUP DENTAL</text>
+        <text class="d-s" x="372" y="219">419 MAPLE ST, RIVERTON, OH</text>
+        <text class="d-s" x="662" y="203" text-anchor="end">look-alike</text>
+        <circle cx="674" cy="199" r="3.5" fill="none" stroke="var(--viz-3)" stroke-width="1.5"></circle>
+        <rect class="d-box-soft" x="330.5" y="236.5" width="359" height="44" rx="8"></rect>
+        <text class="d-e" x="346" y="255">S3</text>
+        <text class="d-t" x="372" y="255">Nova Foods Inc</text>
+        <text class="d-s" x="372" y="271">88 River Road, Lakeside, Texas</text>
+        <text class="d-s" x="662" y="255" text-anchor="end">unrelated</text>
+        <circle cx="674" cy="251" r="3.5" fill="none" stroke="var(--viz-3)" stroke-width="1.5"></circle>
+      </svg>
+    </div>
+  </figure>
+
+  <h3 id="sources">Sources S1, S2 and S3</h3>
+  <p>The three sources have different roles:</p>
+  <ul>
+    <li><strong>Source 1 (S1)</strong> is the reference list. It is deduplicated: each business appears
+      once.</li>
+    <li><strong>Sources 2 and 3 (S2, S3)</strong> contain noisy, partial copies of those businesses, plus many
+      records that match nothing. A business can appear several times, in either source.</li>
+  </ul>
+  <p>The training data has 2.2M S1, 5.0M S2 and 5.3M S3 records. Studying it before any modelling showed what
+    the matcher has to handle:</p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Observation</th>
+        <th class="num">Value</th>
+        <th>What it means for the design</th>
+      </tr>
+      <tr>
+        <td>True matches per S1 record</td>
+        <td class="num">mean 3.5</td>
+        <td>Find whole groups of records, not single pairs.</td>
+      </tr>
+      <tr>
+        <td>S1 records with no match</td>
+        <td class="num">5.6%</td>
+        <td>Returning nothing must be a real option.</td>
+      </tr>
+      <tr>
+        <td>Non-Latin names among true matches</td>
+        <td class="num">7.2%</td>
+        <td>Transliteration, plus embeddings that work across scripts.</td>
+      </tr>
+      <tr>
+        <td>Web domains used as names</td>
+        <td class="num">5.2%</td>
+        <td>Compare names with the spaces removed.</td>
+      </tr>
+      <tr>
+        <td>True matches with an empty address</td>
+        <td class="num">4.4%</td>
+        <td>The name alone must be enough to retrieve a record.</td>
+      </tr>
+      <tr>
+        <td>Matches across countries</td>
+        <td class="num">none</td>
+        <td>Country is a hard partition: only same-country records are compared.</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3 id="one-owner">One owner per record</h3>
+  <p>In the ground truth, every S2/S3 record belongs to at most one S1 record. There are no exceptions among
+    7.6M matched records. The pipeline makes this structure explicit and turns the search around: each S2/S3
+    record is a <em>query</em>, and the S1 records of the same country are the <em>index</em>. Each query picks
+    at most one owner, so two S1 records can never claim the same record.</p>
+
+  <h3 id="distractors">Distractors</h3>
+  <p>26% of S2/S3 records match no S1 record. These distractors are what makes precision hard. 31% of them
+    share their normalized name with some S1 record, so a matcher that trusts names alone merges them. The files
+    to be matched are even more crowded than the training files: 5.76 S2/S3 records per S1 record, against
+    4.67 in training (see <a href="../guides/denser-crowd.html">Simulating a denser crowd</a>).</p>
+  <figure class="fig">
+    <p class="fig-title">What the Source 2 and Source 3 records are</p>
+    <p class="fig-sub">Share of the 10.3M records in the training data</p>
+    <div class="stack" role="img"
+      aria-label="74% match a Source 1 record. 8% are distractors that share a name with a Source 1 record. 18% are other distractors.">
+      <span class="s1" style="flex: 74" title="Match a Source 1 record: 74%">74%</span>
+      <span class="s2" style="flex: 8" title="Distractors that share a name with a Source 1 record: 8%">8%</span>
+      <span class="s3" style="flex: 18" title="Other distractors: 18%">18%</span>
+    </div>
+    <div class="legend">
+      <span><i class="v1"></i>Match a Source 1 record <b>74%</b></span>
+      <span><i class="v2"></i>Distractors sharing a name with a Source 1 record
+        <b>8%</b></span>
+      <span><i class="v3"></i>Other distractors <b>18%</b></span>
+    </div>
+  </figure>
+</section>

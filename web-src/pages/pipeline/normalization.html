@@ -1,0 +1,57 @@
+<section id="normalization">
+  <p class="eyebrow">Pipeline</p>
+  <h2>Normalization</h2>
+  <p class="lede">The first step handles characters only. Nothing here knows any words: every word-level rule
+    is learned later, from the data (see <a href="learned-vocabulary.html">Learned vocabulary</a>).</p>
+  <p>For every record, <code>er/normalize.py</code>:</p>
+  <ol>
+    <li>Keeps the original-script name, with whitespace collapsed, for the multilingual encoder. It also flags
+      names that contain non-ASCII characters.</li>
+    <li>Transliterates non-ASCII text to ASCII, then lower-cases it.</li>
+    <li>Strips punctuation from the ends of names (<code>-- Holloway Peak</code> → <code>holloway
+        peak</code>), and replaces all other punctuation with spaces.</li>
+    <li>Detects domain-style names.</li>
+    <li>Splits addresses on commas into segments, cleans each one, and separates digits from letters.</li>
+  </ol>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Input</th>
+        <th>Normalized</th>
+      </tr>
+      <tr>
+        <td><code>Établissements Cyclo</code></td>
+        <td><code>etablissements cyclo</code></td>
+      </tr>
+      <tr>
+        <td><code>राम मार्केटिंग</code></td>
+        <td>starts with <code>ram</code> and contains <code>mark…</code></td>
+      </tr>
+      <tr>
+        <td><code>coastaltungsten.com</code></td>
+        <td><code>coastaltungsten</code> (flagged as a domain)</td>
+      </tr>
+      <tr>
+        <td><code>234D Dallas Ct, Baltimore</code></td>
+        <td>segments <code>234 d dallas ct</code> | <code>baltimore</code></td>
+      </tr>
+    </table>
+  </div>
+
+  <h3 id="transliteration">Transliteration</h3>
+  <p>Non-ASCII strings go through <a href="https://github.com/anyascii/anyascii">anyascii</a>, an offline
+    Unicode-to-ASCII table covering every script. The order of operations matters here. The usual approach to
+    accents is to decompose characters and drop the combining marks, but Indic vowel signs are combining marks
+    too, so that approach deletes them. anyascii therefore runs <em>first</em>, before any accent handling, and
+    a unit test checks that a Devanagari name keeps its vowels.</p>
+  <p>Transliteration helps character-level matching, but it cannot make two scripts agree on spelling. For names
+    that differ only in script, the <a href="embeddings.html">name embeddings</a> do the work.</p>
+
+  <h3 id="domain-names">Domain-style names</h3>
+  <p>A name that ends in <code>label.tld</code> (a label of at least four characters, then a 2–6 letter
+    top-level domain) is treated as a web domain. The top-level domain is dropped, and the record is flagged
+    with <code>is_domain</code>, which the model sees as a feature. Domains have no spaces, so
+    <code>coastaltungsten</code> and <code>Coastal Tungsten LLC</code> share few words but many character
+    trigrams. Blocking pass A and several features compare names with the spaces removed for this reason.
+  </p>
+</section>

@@ -1,0 +1,56 @@
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --bg-soft: #fafafa;
+  --card: #ffffff;
+  --border: #e4e4e7;
+  --fg: #18181b;
+  --fg-muted: #52525b;
+  --accent: #0d9488;
+  --accent-2: #0f766e;
+  --accent-soft: #f0fdfa;
+  --warn: #d97706;
+  --warn-soft: #fff7ed;
+  --code-bg: #18181b;
+  --code-fg: #fafafa;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  /* charts and diagrams: colourful professional palette */
+  --viz-1: #0d9488;
+  --viz-2: #9333ea;
+  --viz-3: #2dd4bf;
+  --viz-line: #d4d4d8;
+  /* text printed on a mark of that colour */
+  --on-viz-1: #ffffff;
+  --on-viz-2: #ffffff;
+  --on-viz-3: #18181b;
+  --ok: #10b981;
+  --bad: #ef4444;
+}
+
+/* Dark theme. assets/js/theme.js sets data-theme on <html>. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111113;
+  --bg-soft: #1c1c20;
+  --card: #18181b;
+  --border: #2e2e33;
+  --fg: #f4f4f5;
+  --fg-muted: #a1a1aa;
+  --accent: #2dd4bf;
+  --accent-2: #14b8a6;
+  --accent-soft: #0f2a27;
+  --warn: #d97706;
+  --warn-soft: #2a1c0a;
+  --code-bg: #1c1c20;
+  --code-fg: #fafafa;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  /* chosen for the dark card surface, not a flip of the light values: the three series
+     stay apart for colour-blind readers and keep 3:1 contrast against --card */
+  --viz-1: #12ab9b;
+  --viz-2: #a855f7;
+  --viz-3: #00769a;
+  --viz-line: #52525b;
+  --on-viz-1: #111113;
+  --on-viz-2: #ffffff;
+  --on-viz-3: #ffffff;
+}

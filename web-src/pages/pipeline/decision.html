@@ -1,0 +1,98 @@
+<section id="decision">
+  <p class="eyebrow">Pipeline</p>
+  <h2>Decision layer</h2>
+  <p class="lede">The decision layer turns pair probabilities into the final answer: one set of matched
+    records for each S1 record. It is implemented in <code>er/decide.py</code>.</p>
+
+  <h3 id="one-owner-rule">Assigning an owner</h3>
+  <p>Each S2/S3 record can belong to at most one S1 record, so it is first assigned to its single most probable
+    candidate. The other candidates are dropped. This is what makes conflicting merges impossible.</p>
+
+  <h3 id="expected-f05">Choosing the set per business</h3>
+  <p>Each S1 record now has a list of assigned records, each with a probability <code>p</code>. Records below
+    <code>t_assign</code> are dropped. The rest are sorted by probability, and the layer keeps the top
+    <code>k</code> records, choosing <code>k</code> to maximize expected F0.5. Expected F0.5 is approximated
+    with expected counts:
+  </p>
+  <div class="formula">
+    <div>E[F0.5 | top k] ≈ 1.25 · (p₁ + … + p_k) / ( 0.25 · (Σ p_all + miss_mass) + k )</div>
+    <div>P(no match) = Π (1 − pᵢ)<span class="sp"></span>→ choose the empty set if it beats every prefix</div>
+  </div>
+  <p><code>miss_mass</code> accounts for true matches that blocking or assignment never delivered. Two
+    parameters are tuned on half A: <code>t_assign</code> from {0.02, 0.05, 0.1, 0.15, 0.2, 0.3} and
+    <code>miss_mass</code> from {0, 0.1, 0.25, 0.5}. A single global threshold (0.2 to 0.9 in steps of 0.025)
+    is tuned as well, and the method that scores better on half A is used.
+  </p>
+
+  <h4>Worked example</h4>
+  <p>An S1 record has five assigned records, with <code>miss_mass = 0</code>. Keeping the top three gives the
+    highest expected F0.5. Adding the fourth record (p = 0.40) would lower it, because a likely wrong match
+    costs more than a possible missed one.</p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Keep</th>
+        <th class="num">p of the record added</th>
+        <th style="width: 50%">Expected F0.5</th>
+      </tr>
+      <tr>
+        <td>Top 1</td>
+        <td class="num">0.97</td>
+        <td>
+          <div class="barrow"><span class="bar muted" style="width: 54%"></span><span
+              class="val">0.669</span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>Top 2</td>
+        <td class="num">0.93</td>
+        <td>
+          <div class="barrow"><span class="bar muted" style="width: 68%"></span><span
+              class="val">0.844</span></div>
+        </td>
+      </tr>
+      <tr class="hl">
+        <td>Top 3 · chosen</td>
+        <td class="num">0.85</td>
+        <td>
+          <div class="barrow"><span class="bar" style="width: 72%"></span><span
+              class="val">0.902</span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>Top 4</td>
+        <td class="num">0.40</td>
+        <td>
+          <div class="barrow"><span class="bar muted" style="width: 65%"></span><span
+              class="val">0.818</span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>Top 5</td>
+        <td class="num">0.10</td>
+        <td>
+          <div class="barrow"><span class="bar muted" style="width: 56%"></span><span
+              class="val">0.699</span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>Nothing</td>
+        <td class="num">—</td>
+        <td>P(no match) = 0.0002</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3 id="consistency">Consistency step</h3>
+  <p>The records of one business should all end up with the same S1 record. The optional consistency step
+    looks for records that are confidently matched (<code>p ≥ 0.5</code>) to an S1 record, called
+    <em>anchors</em>. It then raises the probability of other candidates of that S1 record that are near
+    duplicates of an anchor:
+  </p>
+  <div class="formula">
+    <div>p'(q, s) = max( p(q, s), λ · p(anchor, s) · sim(q, anchor) )<span class="sp"></span>if sim ≥ sim_min</div>
+  </div>
+  <p>Here <code>sim</code> is the token-set similarity of the names, averaged with that of the addresses when
+    both records have one. <code>λ</code> is chosen from {0, 0.5, 0.75, 1} and <code>sim_min</code> from {0.7,
+    0.85}, and <code>λ = 0</code> means off. So far, every run has chosen "off".</p>
+</section>

@@ -1,0 +1,93 @@
+<section id="learned-vocabulary">
+  <p class="eyebrow">Pipeline</p>
+  <h2>Learned vocabulary</h2>
+  <p class="lede">Everything language-specific is learned from the data in <code>er/vocab.py</code>. One part
+    is supervised and comes from training matches. The rest is unsupervised and is recomputed on whatever files
+    are being processed.</p>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Learned item</th>
+        <th>Learned from</th>
+        <th>At test time</th>
+      </tr>
+      <tr>
+        <td>Token variants</td>
+        <td>Training matches (supervised)</td>
+        <td>Loaded from <code>token_maps.json</code></td>
+      </tr>
+      <tr>
+        <td>Filler words, places, place links, name rarity</td>
+        <td>Frequency statistics</td>
+        <td>Recomputed on the test files</td>
+      </tr>
+    </table>
+  </div>
+
+  <figure class="fig">
+    <p class="fig-title">What the vocabulary does to a record</p>
+    <p class="fig-sub">Illustration. The variant pairs are real examples mined from the training data.</p>
+    <dl class="anat">
+      <dt>Token variants</dt>
+      <dd class="chips">
+        <span class="chip-group"><span class="chip">rd</span>→<span class="chip">road</span></span>
+        <span class="chip-group"><span class="chip">praivet</span>→<span class="chip">private</span></span>
+        <span class="chip-group"><span class="chip">krnatk</span>→<span class="chip">karnataka</span></span>
+      </dd>
+      <dt>Name</dt>
+      <dd class="chips">
+        <span class="chip-group"><span class="chip core">coastal</span><span
+            class="chip core">tungsten</span>core name</span>
+        <span class="chip-group"><span class="chip drop">llc</span>filler word, removed</span>
+      </dd>
+      <dt>Address</dt>
+      <dd class="chips">
+        <span class="chip-group"><span class="chip">234 d dallas ct</span>street</span>
+        <span class="chip-group"><span class="chip">baltimore</span><span class="chip">maryland</span>linked
+          places</span>
+      </dd>
+    </dl>
+  </figure>
+
+  <h3 id="token-variants">Token variants</h3>
+  <p>For each training country, the miner takes true pairs (up to 2M, all outside the validation set) and looks
+    at the tokens that are left unmatched on both sides. When each side has at most four such tokens, every
+    left–right combination is a candidate variant. A candidate is kept only if it passes three tests:</p>
+  <ul>
+    <li><strong>Support</strong>: it occurs in at least 25 pairs.</li>
+    <li><strong>Confidence</strong>: it explains at least 30% of the rarer token's unmatched occurrences.</li>
+    <li><strong>Similarity</strong>: the two tokens pass a test that works in any language. Either one is an
+      in-order abbreviation of the other with the same first letter, or they have the same consonant skeleton,
+      or their Jaro-Winkler similarity is at least 0.88. Tokens containing digits are never mapped.</li>
+  </ul>
+  <p>Each token maps from the rarer spelling to the more frequent one, and chains are followed to their end.
+    Examples it found: <code>rd → road</code>, <code>c1inic → clinic</code>, <code>praivet → private</code>,
+    <code>krnatk → karnataka</code>. Names and addresses get separate maps.
+  </p>
+  <p>A country that is not in the training data gets the shared map: only the variants that every training
+    country agrees on.</p>
+
+  <h3 id="filler-words">Filler words</h3>
+  <p>A name token that occurs in more than 1% of a country's names (<code>llc</code>, <code>pvt</code>,
+    <code>limited</code>, <code>services</code>…) carries little information. These tokens are removed to form
+    the <em>core</em> name. If that leaves nothing, the core name falls back to the full name. Blocking and
+    most name features use the core name, and a few features still compare the full name.
+  </p>
+
+  <h3 id="places">Places and place links</h3>
+  <p>An address segment without digits that recurs in a country, at least max(5, 0.002% of records) times,
+    is a <em>place</em>. This splits each address into places and a street part, which are compared
+    separately.</p>
+  <p>Places that often appear together in the same addresses are <em>linked</em>, for example a city with its
+    département and its region (<code>bordeaux | gironde</code>, <code>bordeaux | nouvelle aquitaine</code>).
+    Two addresses that name the same area at different levels then still agree. Links are learned per country,
+    on up to 3M sampled addresses.</p>
+
+  <h3 id="name-rarity">Name rarity</h3>
+  <p>A common name is ambiguous, a rare one is almost an identifier. Two counts capture this:</p>
+  <ul>
+    <li><code>core_cnt</code>: how many S1 records in the country share this core name.</li>
+    <li><code>local_cnt</code>: how many share it <em>in the same place</em>, keyed on the record's rarest
+      place segment. A common name is only a problem if another business with that name is nearby.</li>
+  </ul>
+</section>

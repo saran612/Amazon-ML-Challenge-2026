@@ -1,0 +1,235 @@
+<section id="configuration">
+  <p class="eyebrow">Reference</p>
+  <h2>Configuration</h2>
+  <p class="lede">All tunable parameters are in one dataclass, <code>Config</code> in <code>er/config.py</code>.
+    There is no configuration file. The command-line flags cover the common switches, and anything else can be
+    changed by editing the defaults or by building a <code>Config</code> in Python.</p>
+  <pre><code>from er.config import Config
+from er.pipeline import run_train
+
+cfg = Config(max_candidates=20, n_jobs=4)
+run_train(data_dir, work_dir, cfg, sample=None, force=False)</code></pre>
+  <p>The configuration is saved with the model in <code>config.json</code>, and <code>test.py</code> loads it
+    from there. The tables below list the settings you are most likely to change.</p>
+
+  <h3 id="config-vocabulary">Vocabulary</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Setting</th>
+        <th class="num">Default</th>
+        <th>Meaning</th>
+      </tr>
+      <tr>
+        <td><code>stop_df_ratio</code></td>
+        <td class="num">0.01</td>
+        <td>A name token in more than this share of a country's names is a filler word.</td>
+      </tr>
+      <tr>
+        <td><code>place_min_ratio / place_min_count</code></td>
+        <td class="num">2e-5 / 5</td>
+        <td>How often a digit-free address segment must recur to count as a place.</td>
+      </tr>
+      <tr>
+        <td><code>abbrev_min_support</code></td>
+        <td class="num">25</td>
+        <td>Minimum number of pairs for a token variant.</td>
+      </tr>
+      <tr>
+        <td><code>abbrev_min_confidence</code></td>
+        <td class="num">0.3</td>
+        <td>Minimum share of the rarer token's unmatched occurrences.</td>
+      </tr>
+      <tr>
+        <td><code>abbrev_max_pairs</code></td>
+        <td class="num">2,000,000</td>
+        <td>Training pairs sampled for mining.</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3 id="config-blocking">Blocking</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Setting</th>
+        <th class="num">Default</th>
+        <th>Meaning</th>
+      </tr>
+      <tr>
+        <td><code>topk_char / topk_addr / topk_joint / topk_embed</code>
+        </td>
+        <td class="num">10 / 8 / 10 / 15</td>
+        <td>Candidates per pass (A, B, C, D).</td>
+      </tr>
+      <tr>
+        <td><code>max_candidates</code></td>
+        <td class="num">16</td>
+        <td>Candidates kept per query by combined score.</td>
+      </tr>
+      <tr>
+        <td><code>keep_top_per_pass</code></td>
+        <td class="num">3</td>
+        <td>Top hits of every pass kept regardless of the cap.</td>
+      </tr>
+      <tr>
+        <td><code>retrieval_max_df / retrieval_min_df_cap</code></td>
+        <td class="num">0.01 / 200</td>
+        <td>Columns more frequent than this are ignored during retrieval.</td>
+      </tr>
+      <tr>
+        <td><code>char_ngram</code></td>
+        <td class="num">3</td>
+        <td>Character n-gram size for pass A.</td>
+      </tr>
+      <tr>
+        <td><code>ann_nprobe</code></td>
+        <td class="num">16</td>
+        <td>IVF lists probed in pass D.</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3 id="config-model">Model</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Setting</th>
+        <th class="num">Default</th>
+        <th>Meaning</th>
+      </tr>
+      <tr>
+        <td><code>val_frac</code></td>
+        <td class="num">0.05</td>
+        <td>Share of training S1 records held out (half A + half B).</td>
+      </tr>
+      <tr>
+        <td><code>max_train_pairs</code></td>
+        <td class="num">30,000,000</td>
+        <td>Budget of candidate pairs for training LightGBM.</td>
+      </tr>
+      <tr>
+        <td><code>n_folds</code></td>
+        <td class="num">3</td>
+        <td>Stage-1 folds, grouped by S1 record.</td>
+      </tr>
+      <tr>
+        <td><code>lgb_rounds / lgb_early_stop</code></td>
+        <td class="num">2000 / 100</td>
+        <td>Boosting rounds and early-stopping patience.</td>
+      </tr>
+      <tr>
+        <td><code>lgb_params</code></td>
+        <td class="num">255 leaves, lr 0.05</td>
+        <td>LightGBM parameters (see <a href="../pipeline/matcher.html#two-stage-lightgbm">Two-stage LightGBM</a>).</td>
+      </tr>
+      <tr>
+        <td><code>stage2_top_features</code></td>
+        <td class="num">24</td>
+        <td>Base features passed on to stage 2.</td>
+      </tr>
+      <tr>
+        <td><code>sib_min_comb / sib_max_per_s</code></td>
+        <td class="num">0.5 / 10</td>
+        <td>Definition of strong siblings.</td>
+      </tr>
+      <tr>
+        <td><code>feature_chunk</code></td>
+        <td class="num">1,500,000</td>
+        <td>Pairs featurized per chunk. Lower it to reduce memory.</td>
+      </tr>
+      <tr>
+        <td><code>seed / n_jobs</code></td>
+        <td class="num">2026 / 10</td>
+        <td>Random seed, worker processes.</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3 id="config-embeddings">Embeddings and cross-encoder</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Setting</th>
+        <th class="num">Default</th>
+        <th>Meaning</th>
+      </tr>
+      <tr>
+        <td><code>use_embeddings / finetune_embed</code></td>
+        <td class="num">True / True</td>
+        <td>Switches behind <code>--no-embed</code> and <code>--no-finetune</code>.</td>
+      </tr>
+      <tr>
+        <td><code>embed_max_len / embed_batch</code></td>
+        <td class="num">32 / 256</td>
+        <td>Encoder input length and inference batch size.</td>
+      </tr>
+      <tr>
+        <td><code>finetune_pairs / finetune_batch</code></td>
+        <td class="num">300,000 / 128</td>
+        <td>Fine-tuning data and batch size.</td>
+      </tr>
+      <tr>
+        <td><code>finetune_lr / finetune_temperature</code></td>
+        <td class="num">2e-5 / 0.05</td>
+        <td>Fine-tuning learning rate and contrastive temperature.</td>
+      </tr>
+      <tr>
+        <td><code>use_cross_encoder</code></td>
+        <td class="num">True</td>
+        <td>Switch behind <code>--no-cross-encoder</code>.</td>
+      </tr>
+      <tr>
+        <td><code>ce_train_pairs / ce_max_len</code></td>
+        <td class="num">300,000 / 96</td>
+        <td>Cross-encoder training pairs and input length.</td>
+      </tr>
+      <tr>
+        <td><code>ce_train_band / ce_band</code></td>
+        <td class="num">(0.02, 0.98)</td>
+        <td>Score band used for training and for re-scoring.</td>
+      </tr>
+      <tr>
+        <td><code>ce_weight_grid</code></td>
+        <td class="num">1.0, 0.75, 0.5, 0.25</td>
+        <td>LightGBM weights tried in the blend (1.0 = off).</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3 id="config-decision">Decision grids</h3>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Setting</th>
+        <th class="num">Values</th>
+        <th>Meaning</th>
+      </tr>
+      <tr>
+        <td><code>t_assign_grid</code></td>
+        <td class="num">0.02 … 0.3</td>
+        <td>Minimum probability for a record to be assigned.</td>
+      </tr>
+      <tr>
+        <td><code>miss_mass_grid</code></td>
+        <td class="num">0, 0.1, 0.25, 0.5</td>
+        <td>Expected true matches that were never delivered.</td>
+      </tr>
+      <tr>
+        <td><code>global_t_grid</code></td>
+        <td class="num">0.2 … 0.9</td>
+        <td>Global thresholds (step 0.025) tried for comparison.</td>
+      </tr>
+      <tr>
+        <td><code>consistency_lambda_grid / consistency_sim_grid</code></td>
+        <td class="num">0 … 1 / 0.7, 0.85</td>
+        <td>Consistency strength (0 = off) and minimum similarity.</td>
+      </tr>
+      <tr>
+        <td><code>unseen_min_p_grid</code></td>
+        <td class="num">0 … 0.98</td>
+        <td>Candidate minimum probabilities for unseen countries (<code>--proxy</code>).</td>
+      </tr>
+    </table>
+  </div>
+</section>

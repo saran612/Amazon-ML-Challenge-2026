@@ -1,0 +1,32 @@
+<section id="training">
+  <p class="eyebrow">Guides</p>
+  <h2>Training a model</h2>
+  <p class="lede">A full training run on the default configuration.</p>
+  <ol>
+    <li>Put the data in <code>dataset/</code> (see <a href="../getting-started/dataset-format.html">Dataset format</a>), and install
+      with <code>pip install -e ".[embed]"</code>.</li>
+    <li>Run training:
+      <pre><code>python scripts/train.py</code></pre>
+    </li>
+    <li>Wait. On a 12-core, 24 GB laptop this takes about 3 hours. The first run also downloads the encoder.
+      Progress is logged with timestamps, and every stage reports its duration and peak memory.</li>
+    <li>Read the report printed at the end, or open <code>work/model/train_report.json</code>.</li>
+  </ol>
+  <p>Training writes to two folders. <code>work/train/</code> is the stage cache, and <code>work/model/</code>
+    holds the finished model (see <a href="../reference/output-files.html">Output files</a>). The model folder is replaced only
+    in the last stage, so a run interrupted before then leaves the previous model untouched.</p>
+  <h4>What the report tells you</h4>
+  <ul>
+    <li><strong>Blocking</strong>: pair recall overall, per pass and on hard slices; candidates per query; and
+      the perfect-matcher ceiling.</li>
+    <li><strong>Each configuration</strong> on half B: the blocking-score baseline, stage 1, stage 2 with a
+      global threshold, stage 2 with expected F0.5, and with the cross-encoder or consistency step when they
+      are enabled. Each shows macro F0.5, singleton F0.5, pair precision and recall, and the score by
+      country.</li>
+    <li><strong>Feature importance</strong> by group, and the top features.</li>
+    <li><strong>Error analysis</strong>: false positives and false negatives by slice, and what fixing each
+      slice would be worth.</li>
+    <li><strong>The final choice</strong>: the decision parameters, cross-encoder weight, consistency setting and
+      unseen-country rule that <code>test.py</code> will use.</li>
+  </ul>
+</section>

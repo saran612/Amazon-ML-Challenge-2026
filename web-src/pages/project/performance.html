@@ -1,0 +1,76 @@
+<section id="performance">
+  <p class="eyebrow">Project</p>
+  <h2>Performance and memory</h2>
+  <p class="lede">Measured on a MacBook Pro (M4 Pro, 12 cores, 24 GB), on the full data, with the default
+    configuration.</p>
+  <div class="stats three">
+    <div class="stat">
+      <div class="num">≈ 3 h</div>
+      <div class="lbl">training, end to end</div>
+    </div>
+    <div class="stat">
+      <div class="num">≈ 2.8 h</div>
+      <div class="lbl">prediction on the test files</div>
+    </div>
+    <div class="stat">
+      <div class="num">≈ 20 GB</div>
+      <div class="lbl">peak memory</div>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Step</th>
+        <th style="width: 48%">Time</th>
+      </tr>
+      <tr>
+        <td>Blocking the training data</td>
+        <td>
+          <div class="barrow"><span class="bar" style="width: 57%"></span><span
+              class="val">≈ 1 h</span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>Embedding 11M names</td>
+        <td>
+          <div class="barrow"><span class="bar" style="width: 33%"></span><span
+              class="val">≈ 35 min</span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>LightGBM</td>
+        <td>
+          <div class="barrow"><span class="bar" style="width: 29%"></span><span
+              class="val">≈ 30 min</span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>Cross-encoder training (200k pairs, laptop GPU)</td>
+        <td>
+          <div class="barrow"><span class="bar" style="width: 14%"></span><span
+              class="val">≈ 15 min</span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>Scoring 127M validation pairs</td>
+        <td>
+          <div class="barrow"><span class="bar" style="width: 80%"></span><span
+              class="val">≈ 1.4 h</span></div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <p>Peak memory stays around 20 GB for about 200M candidate pairs. The techniques that keep it there:</p>
+  <ul>
+    <li>Candidate pairs are written to disk per country and streamed in chunks that never split a query's
+      candidates. Only the query column stays in memory.</li>
+    <li>The training feature matrix is a memory-mapped file, binned once for all LightGBM folds.</li>
+    <li>The pair table uses compact types, at about 45 bytes per pair.</li>
+  </ul>
+  <h4>On a smaller machine</h4>
+  <ul>
+    <li>Start with <code>--sample</code> to measure how long each stage takes.</li>
+    <li>Lower <code>--jobs</code>. Each worker process holds its own share of the data.</li>
+    <li>Lower <code>feature_chunk</code> and <code>max_train_pairs</code> in <code>Config</code>.</li>
+  </ul>
+</section>

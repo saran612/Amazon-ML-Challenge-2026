@@ -1,0 +1,84 @@
+<section id="output-files">
+  <p class="eyebrow">Reference</p>
+  <h2>Output files</h2>
+  <p class="lede">What each script writes, and where.</p>
+  <h4>Predictions: <code>output/</code></h4>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>File</th>
+        <th>Content</th>
+      </tr>
+      <tr>
+        <td><code>matching_results.tsv</code></td>
+        <td><code>source1_entity_id</code>, <code>matched_entity_ids</code>. One row per test S1 record in
+          input order; comma-separated ids, empty when there is no match.</td>
+      </tr>
+      <tr>
+        <td><code>candidate_pairs.tsv</code></td>
+        <td><code>source1_entity_id</code>, <code>candidate_entity_ids</code>. Every candidate the model scored.
+          Each row's matches are a subset of its candidates.</td>
+      </tr>
+    </table>
+  </div>
+  <h4>Model: <code>work/model/</code></h4>
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>File</th>
+        <th>Content</th>
+      </tr>
+      <tr>
+        <td><code>stage1_fold0..2.txt</code>, <code>stage2.txt</code></td>
+        <td>LightGBM models.</td>
+      </tr>
+      <tr>
+        <td><code>stage2_cols.json</code>, <code>calibration.npz</code></td>
+        <td>Stage-2 feature columns, isotonic calibration curve.</td>
+      </tr>
+      <tr>
+        <td><code>token_maps.json</code></td>
+        <td>Mined token variants per country, plus the shared map <code>*</code>.</td>
+      </tr>
+      <tr>
+        <td><code>config.json</code>, <code>decision.json</code></td>
+        <td>Full configuration; chosen decision parameters, cross-encoder weight, consistency setting,
+          unseen-country rule and feature list.</td>
+      </tr>
+      <tr>
+        <td><code>embed_model/</code>, <code>embed_key.txt</code></td>
+        <td>Fine-tuned encoder and its cache identity (with embeddings on).</td>
+      </tr>
+      <tr>
+        <td><code>ce_model/</code></td>
+        <td>Cross-encoder (only when it was chosen).</td>
+      </tr>
+      <tr>
+        <td><code>train_report.json</code></td>
+        <td>Everything in the printed report, plus the configuration and training time.</td>
+      </tr>
+      <tr>
+        <td><code>val_matching_results.tsv</code>, <code>val_ground_truth.tsv</code></td>
+        <td>Final predictions and truth for validation half B, in the official format, for
+          <code>score.py</code>.
+        </td>
+      </tr>
+      <tr>
+        <td><code>error_examples.tsv</code></td>
+        <td>Up to 200 random false positives and 200 false negatives, with both records' names and
+          addresses.</td>
+      </tr>
+      <tr>
+        <td><code>model_id.txt</code></td>
+        <td>Written last. Marks a complete model and invalidates cached test scores.</td>
+      </tr>
+    </table>
+  </div>
+  <h4>Cache: <code>work/train/</code> and <code>work/test/</code></h4>
+  <p>Normalized records (Parquet), embeddings (<code>emb.npy</code>), candidate pairs
+    (<code>pairs.parquet</code>), the training feature matrix (<code>X_train.npy</code>, memory-mapped), and one
+    <code>&lt;stage&gt;.key</code> file per stage (see <a href="../guides/caching.html">Caching and resuming</a>). You can
+    delete these folders at any time. The <code>work/</code> and <code>output/</code> folders are ignored by
+    git.
+  </p>
+</section>

@@ -1,0 +1,102 @@
+<section id="matcher">
+  <p class="eyebrow">Pipeline</p>
+  <h2>Matcher</h2>
+  <p class="lede">Features become a calibrated match probability in three steps: two LightGBM stages, isotonic
+    calibration, and a cross-encoder for the pairs that are hardest to call.</p>
+
+  <figure class="fig">
+    <div class="fig-scroll">
+      <svg viewBox="0 0 691 172" role="img"
+        aria-label="Features go through stage 1, stage 2 and calibration. Uncertain pairs are also scored by a cross-encoder, and the two scores are blended.">
+        <rect class="d-box" x="0.5" y="12.5" width="118" height="64" rx="8"></rect>
+        <text class="d-t" x="12" y="40">Features</text>
+        <text class="d-s" x="12" y="58">77 per pair</text>
+        <rect class="d-box" x="143.5" y="12.5" width="118" height="64" rx="8"></rect>
+        <text class="d-t" x="155" y="40">Stage 1</text>
+        <text class="d-s" x="155" y="58">3 folds</text>
+        <rect class="d-box" x="286.5" y="12.5" width="118" height="64" rx="8"></rect>
+        <text class="d-t" x="298" y="40">Stage 2</text>
+        <text class="d-s" x="298" y="58">adds context</text>
+        <rect class="d-box" x="429.5" y="12.5" width="118" height="64" rx="8"></rect>
+        <text class="d-t" x="441" y="40">Calibrate</text>
+        <text class="d-s" x="441" y="58">isotonic</text>
+        <rect class="d-box" x="572.5" y="12.5" width="118" height="64" rx="8"></rect>
+        <text class="d-t" x="584" y="40">Blend</text>
+        <text class="d-s" x="584" y="58">logit space</text>
+        <line class="d-line" x1="119" y1="44" x2="142" y2="44" marker-end="url(#arr)"></line>
+        <line class="d-line" x1="262" y1="44" x2="285" y2="44" marker-end="url(#arr)"></line>
+        <line class="d-line" x1="405" y1="44" x2="428" y2="44" marker-end="url(#arr)"></line>
+        <line class="d-line" x1="548" y1="44" x2="571" y2="44" marker-end="url(#arr)"></line>
+        <rect class="d-box-accent" x="440.5" y="120.5" width="230" height="44" rx="8"></rect>
+        <text class="d-t" x="452" y="139">Cross-encoder</text>
+        <text class="d-s" x="452" y="155">pairs scored 0.02–0.98 only</text>
+        <line class="d-line" x1="488" y1="77" x2="488" y2="119" marker-end="url(#arr)"></line>
+        <line class="d-line" x1="631" y1="120" x2="631" y2="78" marker-end="url(#arr)"></line>
+        <text class="d-s" x="495" y="102">uncertain</text>
+        <text class="d-s" x="624" y="102" text-anchor="end">re-scored</text>
+      </svg>
+    </div>
+    <figcaption>Every pair goes through the top row. Only the uncertain ones take the detour through the
+      cross-encoder.</figcaption>
+  </figure>
+
+  <h3 id="two-stage-lightgbm">Two-stage LightGBM</h3>
+  <p><strong>Stage 1</strong> scores each pair on its own. It is a binary LightGBM model (255 leaves, learning
+    rate 0.05, at least 200 rows per leaf, 80% feature and bagging fractions, L2 regularization 1.0). It trains
+    with up to 2,000 rounds and stops early after 100 rounds without improvement. Training uses 3 folds grouped
+    by S1 record, so all records of one business fall in the same fold. Every training row therefore gets an
+    <em>out-of-fold</em> score from a model that never saw it. At prediction time, the three fold models are
+    averaged.
+  </p>
+  <p><strong>Stage 2</strong> answers a question stage 1 cannot: does this query have <em>two</em> plausible
+    owners? Its inputs are the 24 most important base features from stage 1, plus six context features
+    computed from the stage-1 scores of the query's candidates:</p>
+  <div class="formula">
+    <div>p1<span class="sp"></span>p1_rank<span class="sp"></span>p1_other<span class="sp"></span>p1_margin<span class="sp"></span>p1_n_hi<span class="sp"></span>p1_sum</div>
+  </div>
+  <p>These are the score, its rank, the best other candidate's score, the margin to it, the number of candidates
+    above 0.5, and the sum of scores. Stage 2 trains on the out-of-fold scores, so it never learns from
+    overconfident in-sample scores. It stops early on a 10% holdout of groups.</p>
+  <p>Training uses up to 30M candidate pairs from queries that touch no validation record. To fit in memory,
+    the feature matrix is written to a memory-mapped file and binned once. Every fold then uses subsets of that
+    one binned dataset, without copying it.</p>
+
+  <h3 id="calibration">Calibration</h3>
+  <p>The decision layer computes expected F0.5 from probabilities, so the scores have to be real probabilities.
+    Isotonic regression, fitted on validation half A, maps the stage-2 score to a calibrated probability.</p>
+
+  <h3 id="cross-encoder">Cross-encoder</h3>
+  <p>A cross-encoder reads both records together as <code>name | address</code> text, so it can catch typos and
+    transliterations that pairwise features miss. It is too expensive to run on every pair, so it only
+    re-scores the <em>uncertain band</em>:</p>
+  <ul>
+    <li><strong>Model</strong>: <code>multilingual-e5-small</code> with a classification head, trained with a
+      binary cross-entropy loss (batch 64, learning rate 3e-5, up to 96 tokens).</li>
+    <li><strong>Training pairs</strong>: up to 300k training pairs whose stage-1 out-of-fold score is between
+      0.02 and 0.98, the ones LightGBM found hard.</li>
+    <li><strong>Applied to</strong>: validation and test pairs whose calibrated probability is between 0.02 and
+      0.98, about 0.7% of all pairs.</li>
+    <li><strong>Blending</strong>: the two scores are combined in logit space, with a weight <code>w</code> for
+      LightGBM:</li>
+  </ul>
+  <div class="formula">
+    <div>p' = σ( w · logit(p_lightgbm) + (1 − w) · logit(p_cross_encoder) )</div>
+    <div>w ∈ {1.0, 0.75, 0.5, 0.25}</div>
+  </div>
+  <p>The weight is tuned on half A, and <code>w = 1.0</code> switches the cross-encoder off. In the reported run
+    it chose <code>w = 0.5</code>, which added +0.003 macro F0.5.</p>
+  <div class="stats three">
+    <div class="stat">
+      <div class="num">0.7%</div>
+      <div class="lbl">of pairs re-scored by the cross-encoder</div>
+    </div>
+    <div class="stat">
+      <div class="num">0.5</div>
+      <div class="lbl">LightGBM weight chosen on half A</div>
+    </div>
+    <div class="stat">
+      <div class="num">+0.003</div>
+      <div class="lbl">macro F0.5 gained</div>
+    </div>
+  </div>
+</section>
