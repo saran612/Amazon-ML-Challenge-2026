@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "entity-resolver"
+version = "1.0.0"
+description = "Business entity resolution across three noisy sources: multi-pass blocking, a two-stage LightGBM matcher and an F0.5-aware decision layer."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Shanmuga Ramana" }]
+requires-python = ">=3.11"
+dependencies = [
+    "polars>=1.44",
+    "numpy>=2.4",
+    "scipy>=1.17",
+    "scikit-learn>=1.9",
+    "rapidfuzz>=3.14",
+    "lightgbm>=4.7",
+    "anyascii>=0.3",
+]
+
+[project.optional-dependencies]
+# multilingual name embeddings + cross-encoder (the default configuration uses them)
+embed = ["torch>=2.14", "transformers>=5.17", "faiss-cpu>=1.15"]
+dev = ["pytest>=9.1", "ruff>=0.16"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["e2e: end-to-end run of train + test on a small synthetic dataset (about a minute)"]
